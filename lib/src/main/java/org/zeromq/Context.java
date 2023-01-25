@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Context implements AutoCloseable {
     private final AtomicBoolean closed = new AtomicBoolean(false);
     private long contextHandle;
-
     public void term() {
         if (this.closed.compareAndSet(false, true)) {
             this.destroy();

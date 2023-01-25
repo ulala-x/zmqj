@@ -20,8 +20,8 @@ option(ENABLE_LTO "Enable to add Link Time Optimization." ON)
 
 #Project/Library Names
 set(ZMQJ "zmqj")
-set(UNIT_TEST_NAME "unit_tests")
-set(EXECUTABLE_NAME "main")
+# set(UNIT_TEST_NAME "unit_tests")
+# set(EXECUTABLE_NAME "main")
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -41,7 +41,7 @@ FetchContent_Declare(
     GIT_SHALLOW TRUE
     OVERRIDE_FIND_PACKAGE
 )   
-option(ENABLE_DRAFTS ON CACHE)
+option(ENABLE_DRAFTS ON)
 option(BUILD_TESTS OFF)
 FetchContent_MakeAvailable(zeromq)
 
@@ -57,4 +57,27 @@ endif(NOT CMAKE_BUILD_TYPE)
 add_subdirectory(configured)
 add_subdirectory(src)
 
+#-------------------------------------------------------------------
+# install
+#-------------------------------------------------------------------
+# set(CMAKE_INSTALL_PREFIX ../../../lib/src/main/resource/NATIVE)
 
+
+
+if (Linux)
+
+# add_custom_command(
+#         TARGET ${ZMQJ}  POST_BUILD
+#         COMMAND ${CMAKE_COMMAND} -E copy
+#                 ${CMAKE_CURRENT_BINARY_DIR}/lib/libzmqj.so
+#                 ../../../lib/src/main/resource/NATIVE/Linux/x86_64/libzmqj.so)
+
+endif (Linux)
+
+if (Windows)
+    # do something
+endif (Windows)
+
+if (Darwin)
+    # do something
+endif (Darwin)

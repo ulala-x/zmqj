@@ -38,66 +38,51 @@ public class Socket implements AutoCloseable {
         this._construct(this.context, socketType.number());
     }
 
-    private native int _bind(String endpoint);
+    private native void _bind(String endpoint);
 
     public void bind(String endpoint) {
-        int var2 = this._bind(endpoint);
-        if (var2 != 0) {
-            throw new ZMQException.InternalError();
-        }
+         this._bind(endpoint);
     }
 
-    private native int _unbind(String endpoint);
+    private native void _unbind(String endpoint);
 
     public void unbind(String endpoint) {
-        int var2 = this._unbind(endpoint);
-        if (var2 != 0) {
-            throw new ZMQException.InternalError();
-        }
+        this._unbind(endpoint);
     }
 
-    private native int _connect(String endpoint);
+    private native void _connect(String endpoint);
 
     public void connect(String endpoint) {
-        int var2 = this._connect(endpoint);
-        if (var2 != 0) {
-            throw new ZMQException.InternalError();
-        }
+        this._connect(endpoint);
     }
 
-    private native int _disconnect(String endpoint);
+    private native void _disconnect(String endpoint);
 
     public void disconnect(String endpoint) {
-        int var2 = this._disconnect(endpoint);
-        if (var2 != 0) {
-            throw new ZMQException.InternalError();
-        }
+        this._disconnect(endpoint);
     }
 
-    private native int _monitor(String endpoint, int socketEvent);
+    private native void _monitor(String endpoint, int socketEvent);
 
     public void monitor(String endpoint, SocketEvent socketEvent) {
-        int var3 = this._monitor(endpoint, socketEvent.number());
-        if (var3 != 0) {
-            throw new ZMQException.InternalError();
-        }
+        this._monitor(endpoint, socketEvent.number());
     }
 
-    private native int _getBooleanSockopt(int option, Boolean value);
+    private native boolean _getBooleanSockopt(int option);
 
-    private native int _setBooleanSockopt(int option, Boolean value);
+    private native void _setBooleanSockopt(int option, boolean value);
 
-    private native int _getIntSockopt(int option, Integer value);
+    private native int _getIntSockopt(int option);
 
-    private native int _setIntSockopt(int option, Integer value);
+    private native void _setIntSockopt(int option, int value);
 
-    private native int _getLongSockopt(int option, Long value);
+    private native long _getLongSockopt(long option);
 
-    private native int _setLongSockopt(int option, long value);
+    private native void _setLongSockopt(int option, long value);
 
-    private native int _setBytesSockopt(int option, byte[] value);
+    private native void _setBytesSockopt(int option, byte[] value);
 
-    private native int _getBytesSockopt(int option, byte[] value, int valueSize);
+    private native byte[] _getBytesSockopt(int option);
 
     public void setAffinity(int value) {
         this.setIntOption(SocketOption.ZMQ_AFFINITY,value);
@@ -576,7 +561,7 @@ public class Socket implements AutoCloseable {
                 this._bind(String.format("%s:%s", endpoint, var5));
                 return var5;
             } catch (ZMQException var9) {
-                if ((long)var9.getErrorCode() != ZMQ.EADDRINUSE()) {
+                if ((long)var9.getErrorCode() != ZMQ._EADDRINUSE()) {
                     throw var9;
                 }
 
@@ -584,7 +569,7 @@ public class Socket implements AutoCloseable {
             }
         }
 
-        throw new ZMQException("Could not bind socket to random port.", (int)ZMQ.EADDRINUSE());
+        throw new ZMQException("Could not bind socket to random port.", (int)ZMQ._EADDRINUSE());
     }
 
     public String bindToSystemRandomPort(String var1) {
@@ -595,81 +580,43 @@ public class Socket implements AutoCloseable {
     }
 
     private boolean getBooleanOption(int option) {
-        Boolean value = Boolean.FALSE;
-        int result = this._getBooleanSockopt(option, value);
-        if (0 != result) {
-            throw new ZMQException.InternalError();
-        } else {
-            return value;
-        }
+        return this._getBooleanSockopt(option);
     }
 
     private void setBooleanOption(int option, boolean value) {
-        int result = this._setBooleanSockopt(option, value);
-        if (0 != result) {
-            throw new ZMQException.InternalError();
-        }
+        this._setBooleanSockopt(option, value);
     }
 
-    private int getIntOption(int var1) {
-        Integer var2 = 0;
-        int var3 = this._getIntSockopt(var1, var2);
-        if (0 != var3) {
-            throw new ZMQException.InternalError();
-        } else {
-            return var2;
-        }
+    private int getIntOption(int option) {
+        return  this._getIntSockopt(option);
     }
 
     private void setIntOption(int option, int value) {
-        int result = this._setIntSockopt(option, value);
-        if (0 != result) {
-            throw new ZMQException.InternalError();
-        }
+        this._setIntSockopt(option, value);
     }
 
-    public void setLongOption(int var1, long var2) {
-        int var4 = this._setLongSockopt(var1, (long)var1);
-        if (var4 != 0) {
-            throw new ZMQException.InternalError();
-        }
+    public void setLongOption(int option, long value) {
+        this._setLongSockopt(option,value);
     }
 
-    private long getLongOption(int var1) {
-        Long var2 = 0L;
-        int var3 = this._getLongSockopt(var1, var2);
-        if (var3 != 0) {
-            throw new ZMQException.InternalError();
-        } else {
-            return var2;
-        }
+    private long getLongOption(long option) {
+        return this._getLongSockopt(option);
     }
 
-    private byte[] getByteOption(int var1) {
-        byte[] var2 = new byte[1024];
-        int var3 = this._getBytesSockopt(var1, var2, var2.length);
-        if (var3 != 0) {
-            throw new ZMQException.InternalError();
-        } else {
-            return var2;
-        }
+    private byte[] getByteOption(int option) {
+        return this._getBytesSockopt(option);
     }
 
-    private byte[] setByteOption(int var1, byte[] var2) {
-        int var3 = this._setBytesSockopt(var1, var2);
-        if (var3 != 0) {
-            throw new ZMQException.InternalError();
-        } else {
-            return var2;
-        }
+    private void setByteOption(int option, byte[] value) {
+        this._setBytesSockopt(option, value);
     }
 
-    private String getStringOption(int var1) {
-        return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(this.getByteOption(var1))).toString();
+    private String getStringOption(int option) {
+        return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(this.getByteOption(option))).toString();
     }
 
-    private void setStringOption(int var1, String var2) {
-        this.setByteOption(var1, var2.getBytes(StandardCharsets.UTF_8));
+    private void setStringOption(int option, String value) {
+        this.setByteOption(option, value.getBytes(StandardCharsets.UTF_8));
     }
 
     static {

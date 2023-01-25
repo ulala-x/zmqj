@@ -13,68 +13,68 @@ public class ZMQ {
     public static native String zmq_error_msg(int var0);
 
     public static int getMajorVersion() {
-        return version_major();
+        return _version_major();
     }
 
     public static int getMinorVersion() {
-        return version_minor();
+        return _version_minor();
     }
 
     public static int getPatchVersion() {
-        return version_patch();
+        return _version_patch();
     }
 
     public static int getFullVersion() {
-        return version_full();
+        return _version_full();
     }
 
     public static int makeVersion(int var0, int var1, int var2) {
-        return make_version(var0, var1, var2);
+        return _make_version(var0, var1, var2);
     }
 
     public static String getVersionString() {
-        return String.format("%d.%d.%d", version_major(), version_minor(), version_patch());
+        return String.format("%d.%d.%d", _version_major(), _version_minor(), _version_patch());
     }
 
-    protected static native int version_full();
+    public static native int _version_full();
 
-    protected static native int version_major();
+    public static native int _version_major();
 
-    protected static native int version_minor();
+    public static native int _version_minor();
 
-    protected static native int version_patch();
+    public static native int _version_patch();
 
-    protected static native int make_version(int major, int miner, int patch);
+    public static native int _make_version(int major, int miner, int patch);
 
-    protected static native long ENOTSUP();
+    public static native long _ENOTSUP();
 
-    protected static native long EPROTONOSUPPORT();
+    public static native long _EPROTONOSUPPORT();
 
-    protected static native long ENOBUFS();
+    public static native long _ENOBUFS();
 
-    protected static native long ENETDOWN();
+    public static native long _ENETDOWN();
 
-    protected static native long EADDRINUSE();
+    public static native long _EADDRINUSE();
 
-    protected static native long EADDRNOTAVAIL();
+    public static native long _EADDRNOTAVAIL();
 
-    protected static native long ECONNREFUSED();
+    public static native long _ECONNREFUSED();
 
-    protected static native long EINPROGRESS();
+    public static native long _EINPROGRESS();
 
-    protected static native long EHOSTUNREACH();
+    public static native long _EHOSTUNREACH();
 
-    protected static native long EMTHREAD();
+    public static native long _EMTHREAD();
 
-    protected static native long EFSM();
+    public static native long _EFSM();
 
-    protected static native long ENOCOMPATPROTO();
+    public static native long _ENOCOMPATPROTO();
 
-    protected static native long ETERM();
+    public static native long _ETERM();
 
-    protected static native long ENOTSOCK();
+    public static native long _ENOTSOCK();
 
-    protected static native long EAGAIN();
+    public static native long _EAGAIN();
 
     static {
         if (!EmbeddedLibraryTools.LOADED_EMBEDDED_LIBRARY) {
@@ -84,21 +84,21 @@ public class ZMQ {
     }
 
     public static enum Error {
-        ENOTSUP(ZMQ.ENOTSUP()),
-        EPROTONOSUPPORT(ZMQ.EPROTONOSUPPORT()),
-        ENOBUFS(ZMQ.ENOBUFS()),
-        ENETDOWN(ZMQ.ENETDOWN()),
-        EADDRINUSE(ZMQ.EADDRINUSE()),
-        EADDRNOTAVAIL(ZMQ.EADDRNOTAVAIL()),
-        ECONNREFUSED(ZMQ.ECONNREFUSED()),
-        EINPROGRESS(ZMQ.EINPROGRESS()),
-        EHOSTUNREACH(ZMQ.EHOSTUNREACH()),
-        EMTHREAD(ZMQ.EMTHREAD()),
-        EFSM(ZMQ.EFSM()),
-        ENOCOMPATPROTO(ZMQ.ENOCOMPATPROTO()),
-        ETERM(ZMQ.ETERM()),
-        ENOTSOCK(ZMQ.ENOTSOCK()),
-        EAGAIN(ZMQ.EAGAIN());
+        ENOTSUP(ZMQ._ENOTSUP()),
+        EPROTONOSUPPORT(ZMQ._EPROTONOSUPPORT()),
+        ENOBUFS(ZMQ._ENOBUFS()),
+        ENETDOWN(ZMQ._ENETDOWN()),
+        EADDRINUSE(ZMQ._EADDRINUSE()),
+        EADDRNOTAVAIL(ZMQ._EADDRNOTAVAIL()),
+        ECONNREFUSED(ZMQ._ECONNREFUSED()),
+        EINPROGRESS(ZMQ._EINPROGRESS()),
+        EHOSTUNREACH(ZMQ._EHOSTUNREACH()),
+        EMTHREAD(ZMQ._EMTHREAD()),
+        EFSM(ZMQ._EFSM()),
+        ENOCOMPATPROTO(ZMQ._ENOCOMPATPROTO()),
+        ETERM(ZMQ._ETERM()),
+        ENOTSOCK(ZMQ._ENOTSOCK()),
+        EAGAIN(ZMQ._EAGAIN());
 
         private final long code;
 
