@@ -2,24 +2,38 @@ package org.zeromq;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Context implements AutoCloseable {
+public class ZMQContext implements AutoCloseable {
     private final AtomicBoolean closed = new AtomicBoolean(false);
     private long contextHandle;
+
+    static {
+        if (!EmbeddedLibraryTools.LOADED_EMBEDDED_LIBRARY){
+            System.loadLibrary("libzmqj");
+        }
+    }
+
     public void term() {
         if (this.closed.compareAndSet(false, true)) {
-            this.destroy();
+            this._destroy();
         }
 
     }
 
-    public Context(int ioThreads) {
+    public ZMQContext(int ioThreads) {
         this._construct(ioThreads);
     }
 
     private native void _construct(int ioThreads);
 
-    private native void destroy();
+    private native void _destroy();
 
+
+    /**
+     * Get the underlying context handle. This is private because it is only accessed from JNI, where Java access
+     * controls are ignored.
+     *
+     * @return the internal 0MQ context handle.
+     */
     private long getContextHandle() {
         return this.contextHandle;
     }
@@ -39,4 +53,6 @@ public class Context implements AutoCloseable {
     public int getMaxSockets() {
         return this._getMaxSockets();
     }
+
+
 }

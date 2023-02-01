@@ -6,9 +6,8 @@ import java.io.*;
 import java.util.UUID;
 
 
-public class JZMQLoader
+public class ZMQJLoader
 {
-
 
     private static File nativeLibFile = null;
 
@@ -21,7 +20,6 @@ public class JZMQLoader
             }
         }
     }
-
 
     private static boolean contentsEquals(InputStream in1, InputStream in2)
             throws IOException
@@ -81,7 +79,7 @@ public class JZMQLoader
             InputStream reader = null;
             FileOutputStream writer = null;
             try {
-                reader = JZMQLoader.class.getResourceAsStream(nativeLibraryFilePath);
+                reader = ZMQJLoader.class.getResourceAsStream(nativeLibraryFilePath);
                 try {
                     writer = new FileOutputStream(extractedLibFile);
 
@@ -119,7 +117,7 @@ public class JZMQLoader
                 InputStream nativeIn = null;
                 InputStream extractedLibIn = null;
                 try {
-                    nativeIn = JZMQLoader.class.getResourceAsStream(nativeLibraryFilePath);
+                    nativeIn = ZMQJLoader.class.getResourceAsStream(nativeLibraryFilePath);
                     extractedLibIn = new FileInputStream(extractedLibFile);
 
                     if (!contentsEquals(nativeIn, extractedLibIn)) {
@@ -146,7 +144,7 @@ public class JZMQLoader
 
     private static boolean hasResource(String path)
     {
-        return JZMQLoader.class.getResource(path) != null;
+        return ZMQJLoader.class.getResource(path) != null;
     }
 
 }

@@ -1,12 +1,18 @@
 package org.zeromq;
 
 public class ZMQ {
+
+    static {
+        if (!EmbeddedLibraryTools.LOADED_EMBEDDED_LIBRARY) {
+            System.loadLibrary("libzmqj");
+        }
+    }
+
     public static final int NOBLOCK = 1;
     public static final int DONTWAIT = 1;
     public static final int SNDMORE = 2;
 
-    public ZMQ() {
-    }
+
 
     public static native int zmq_errno();
 
@@ -36,54 +42,129 @@ public class ZMQ {
         return String.format("%d.%d.%d", _version_major(), _version_minor(), _version_patch());
     }
 
-    public static native int _version_full();
-
-    public static native int _version_major();
-
-    public static native int _version_minor();
-
-    public static native int _version_patch();
-
-    public static native int _make_version(int major, int miner, int patch);
-
-    public static native long _ENOTSUP();
-
-    public static native long _EPROTONOSUPPORT();
-
-    public static native long _ENOBUFS();
-
-    public static native long _ENETDOWN();
-
-    public static native long _EADDRINUSE();
-
-    public static native long _EADDRNOTAVAIL();
-
-    public static native long _ECONNREFUSED();
-
-    public static native long _EINPROGRESS();
-
-    public static native long _EHOSTUNREACH();
-
-    public static native long _EMTHREAD();
-
-    public static native long _EFSM();
-
-    public static native long _ENOCOMPATPROTO();
-
-    public static native long _ETERM();
-
-    public static native long _ENOTSOCK();
-
-    public static native long _EAGAIN();
-
-    static {
-        if (!EmbeddedLibraryTools.LOADED_EMBEDDED_LIBRARY) {
-            System.loadLibrary("jzmq");
-        }
-
+    public static int version_full(){
+        return _version_full();
     }
 
-    public static enum Error {
+    public static int version_major(){
+        return _version_major();
+    }
+
+    public static   int version_minor(){
+        return _version_minor();
+    }
+
+    public static  int version_patch(){
+        return _version_patch();
+    }
+
+    public static  int make_version(int major, int miner, int patch){
+        return makeVersion(major,miner,patch);
+    }
+
+    public static  long ENOTSUP(){
+        return _ENOTSUP();
+    }
+
+    public static  long EPROTONOSUPPORT(){
+        return _EPROTONOSUPPORT();
+    }
+
+    public static  long ENOBUFS(){
+        return _ENOBUFS();
+    }
+
+    public static  long ENETDOWN(){
+        return _ENETDOWN();
+    }
+
+    public static  long EADDRINUSE(){
+        return _EADDRINUSE();
+    }
+
+    public static  long EADDRNOTAVAIL(){
+        return _EADDRNOTAVAIL();
+    }
+
+    public static  long ECONNREFUSED(){
+        return _ECONNREFUSED();
+    }
+
+    public static  long EINPROGRESS(){
+        return _EINPROGRESS();
+    }
+
+    public static  long EHOSTUNREACH(){
+        return _EHOSTUNREACH();
+    }
+
+    public static  long EMTHREAD(){
+        return _EMTHREAD();
+    }
+
+    public static  long EFSM(){
+        return _EFSM();
+    }
+
+    public static  long ENOCOMPATPROTO(){
+        return _ENOCOMPATPROTO();
+    }
+
+    public static  long ETERM(){
+        return _ETERM();
+    }
+
+    public static  long ENOTSOCK(){
+        return  _ENOTSOCK();
+    }
+
+    public static  long EAGAIN(){
+        return _EAGAIN();
+    }
+
+    private static native int _version_full();
+
+    private static native int _version_major();
+
+    private static native int _version_minor();
+
+    private static native int _version_patch();
+
+    private static native int _make_version(int major, int miner, int patch);
+
+    private static native long _ENOTSUP();
+
+    private static native long _EPROTONOSUPPORT();
+
+    private static native long _ENOBUFS();
+
+    private static native long _ENETDOWN();
+
+    private static native long _EADDRINUSE();
+
+    private static native long _EADDRNOTAVAIL();
+
+    private static native long _ECONNREFUSED();
+
+    private static native long _EINPROGRESS();
+
+    private static native long _EHOSTUNREACH();
+
+    private static native long _EMTHREAD();
+
+    private static native long _EFSM();
+
+    private static native long _ENOCOMPATPROTO();
+
+    private static native long _ETERM();
+
+    private static native long _ENOTSOCK();
+
+    private static native long _EAGAIN();
+
+
+
+    public enum Error {
         ENOTSUP(ZMQ._ENOTSUP()),
         EPROTONOSUPPORT(ZMQ._EPROTONOSUPPORT()),
         ENOBUFS(ZMQ._ENOBUFS()),
@@ -119,4 +200,9 @@ public class ZMQ {
             throw new IllegalArgumentException("Unknown " + Error.class.getName() + " enum code:" + code);
         }
     }
+
+    public static void proxy(ZMQSocket frontend, ZMQSocket backend, ZMQSocket capture) {
+        _proxy(frontend, backend, capture);
+    }
+    private static native void _proxy(ZMQSocket frontend, ZMQSocket backend, ZMQSocket capture);
 }

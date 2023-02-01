@@ -150,9 +150,9 @@ public class EmbeddedLibraryTools {
         // /NATIVE/${os.arch}/${os.name}/libjzmq.[so|dylib|dll]
         String[] allowedExtensions = new String[]{"so", "dylib", "dll"};
         String[] libs;
-        final String libsFromProps = System.getProperty("jzmq.libs");
+        final String libsFromProps = System.getProperty("zmqj.libs");
         if (libsFromProps == null)
-            libs = new String[]{"libzmq", "zmq","libjzmq", "jzmq","libsodium", "sodium" };
+            libs = new String[]{"libzmq", "zmq","libzmqj", "jzmq","libsodium", "sodium" };
         else
             libs = libsFromProps.split(",");
         StringBuilder url = new StringBuilder();
@@ -183,7 +183,7 @@ public class EmbeddedLibraryTools {
             }
         }
 
-        String targetFolderPath = String.format("%s%s%s%s",tempFolder.getAbsolutePath(), File.separator,"lbase.",uuid);
+        String targetFolderPath = String.format("%s%s%s%s",tempFolder.getAbsolutePath(), File.separator,"zmqj.",uuid);
 
         targetFolder = new File(targetFolderPath);
 
@@ -213,7 +213,7 @@ public class EmbeddedLibraryTools {
 
 
 
-                File file = JZMQLoader.extractLibraryFile(nativeLibraryFilePath,libraryName,targetFolder.getAbsolutePath());
+                File file = ZMQJLoader.extractLibraryFile(nativeLibraryFilePath,libraryName,targetFolder.getAbsolutePath());
 
                 fileList.add(file);
 

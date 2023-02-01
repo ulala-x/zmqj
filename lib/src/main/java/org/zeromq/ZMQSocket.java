@@ -6,36 +6,44 @@ import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Socket implements AutoCloseable {
+public class ZMQSocket implements AutoCloseable {
     private long socketHandle;
-    private final Context context;
+    private final ZMQContext context;
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
+    private final int maxOptionSize = 256;
     private static native void _nativeInit();
+
+    static {
+        if (!EmbeddedLibraryTools.LOADED_EMBEDDED_LIBRARY){
+            System.loadLibrary("libzmqj");
+        }
+        _nativeInit();
+    }
 
     public void close() {
         if (this.closed.compareAndSet(false, true)) {
-            this.destroy();
+            this._destroy();
         }
 
     }
 
-    private long getSocketHandle() {
+    public long getSocketHandle() {
         return this.socketHandle;
     }
 
-    private native void _construct(Context context, int socketType);
+    private native void _construct(ZMQContext context, int socketType);
 
-    private native void destroy();
+    private native void _destroy();
 
-    public Socket(Context context, SocketType socketType) {
+    public ZMQSocket(ZMQContext context, SocketType socketType) {
         this.context = context;
-        this._construct(this.context, socketType.number());
+        this._construct(this.context, socketType.value());
     }
 
-    public Socket(SocketType socketType) {
-        this.context = new Context(1);
-        this._construct(this.context, socketType.number());
+    public ZMQSocket(SocketType socketType) {
+        this.context = new ZMQContext(1);
+        this._construct(this.context, socketType.value());
     }
 
     private native void _bind(String endpoint);
@@ -62,11 +70,91 @@ public class Socket implements AutoCloseable {
         this._disconnect(endpoint);
     }
 
-    private native void _monitor(String endpoint, int socketEvent);
+    private native boolean _monitor(String endpoint, int socketEvent);
 
-    public void monitor(String endpoint, SocketEvent socketEvent) {
-        this._monitor(endpoint, socketEvent.number());
+    public boolean monitor(String endpoint, EventType eventType) {
+        return this._monitor(endpoint, eventType.value());
     }
+
+
+    /*
+    send/recv
+     */
+
+    /**
+     * Send a message.
+     *
+     * @param msg the message to send, as an array of bytes.
+     * @return true if send was successful, false otherwise.
+     */
+    public boolean send(byte[] msg){
+        return send(msg,SendFlag.WAIT);
+    }
+
+    /**
+     * @param msg
+     * @param sendFlag
+     * @return
+     */
+    public boolean send(byte[] msg, SendFlag sendFlag) {
+        return send(msg, 0, msg.length, sendFlag);
+    }
+
+    public boolean send(byte[] msg, int offset, int len, SendFlag sendFlag){
+        return _send(msg,offset,len,sendFlag.value());
+    }
+
+    public boolean send(ZFrame msg, SendFlag sendFlag){
+        try(msg){
+            return _send(msg,sendFlag.value());
+        }
+    }
+
+    public native boolean _send(byte[] msg, int offset, int len, int flags);
+
+    public native boolean _send(ZFrame msg, int flags);
+
+
+
+    private native ZFrame _receive(int flags);
+    public ZFrame receive(RecvFlag recvFlag){
+        return _receive(recvFlag.value());
+    }
+
+
+    /**
+     * Receive a message.
+     *
+     * @param flags the flags to apply to the receive operation.
+     * @return the message received, as an array of bytes; null on error.
+     */
+    private native byte[] _recv(int flags);
+
+    public  byte[] recv(RecvFlag flags){
+        return _recv(flags.value());
+    }
+    public byte[] recv(){
+        return recv(RecvFlag.WAIT);
+    }
+
+    /**
+     * Receive a message in to a specified buffer.
+     *
+     * @param buffer byte[] to copy zmq message payload in to.
+     * @param offset offset in buffer to write data
+     * @param len max bytes to write to buffer. If len is smaller than the incoming message size, the message will
+     *            be truncated.
+     * @param flags the flags to apply to the receive operation.
+     * @return the number of bytes read, -1 on error
+     */
+    private native int _recv(byte[] buffer, int offset, int len, int flags);
+    public int recv(byte[] buffer, int offset, int len, RecvFlag flags){
+        return _recv(buffer,offset,len,flags.value());
+    }
+
+   /*
+    option
+     */
 
     private native boolean _getBooleanSockopt(int option);
 
@@ -82,21 +170,21 @@ public class Socket implements AutoCloseable {
 
     private native void _setBytesSockopt(int option, byte[] value);
 
-    private native byte[] _getBytesSockopt(int option);
+    private native byte[] _getBytesSockopt(int option,int optionValueSize);
 
-    public void setAffinity(int value) {
-        this.setIntOption(SocketOption.ZMQ_AFFINITY,value);
+    public void affinity(int value) {
+        this.setLongOption(SocketOption.ZMQ_AFFINITY,value);
     }
 
-    public long getAffinity() {
-        return this.getIntOption(SocketOption.ZMQ_AFFINITY);
+    public long affinity() {
+        return this.getLongOption(SocketOption.ZMQ_AFFINITY);
     }
 
-    public void setBacklog(int value) {
+    public void backlog(int value) {
         this.setIntOption(SocketOption.ZMQ_BACKLOG, value);
     }
 
-    public int getBacklog() {
+    public int backlog() {
         return this.getIntOption(SocketOption.ZMQ_BACKLOG);
     }
 
@@ -128,20 +216,20 @@ public class Socket implements AutoCloseable {
         this.setIntOption(SocketOption.ZMQ_CONNECT_TIMEOUT, value);
     }
 
-    public String curvePublicKey() {
-        return this.getStringOption(SocketOption.ZMQ_CURVE_PUBLICKEY);
+    public byte[] curvePublicKey() {
+        return this.getByteOption(SocketOption.ZMQ_CURVE_PUBLICKEY,32);
     }
 
-    public void curvePublicKey(String value) {
-        this.setStringOption(SocketOption.ZMQ_CURVE_PUBLICKEY, value);
+    public void curvePublicKey(byte[] value) {
+        this.setByteOption(SocketOption.ZMQ_CURVE_PUBLICKEY, value);
     }
 
-    public void curveSecretKey(String value) {
-        this.setStringOption(SocketOption.ZMQ_CURVE_SECRETKEY, value);
+    public void curveSecretKey(byte[] value) {
+        this.setByteOption(SocketOption.ZMQ_CURVE_SECRETKEY, value);
     }
 
-    public String curveSecretKey() {
-        return this.getStringOption(SocketOption.ZMQ_CURVE_SECRETKEY);
+    public byte[] curveSecretKey() {
+        return this.getByteOption(SocketOption.ZMQ_CURVE_SECRETKEY,32);
     }
 
     public boolean curveServer() {
@@ -152,12 +240,12 @@ public class Socket implements AutoCloseable {
         this.setBooleanOption(SocketOption.ZMQ_CURVE_SERVER, value);
     }
 
-    public String curveServerKey() {
-        return this.getStringOption(SocketOption.ZMQ_CURVE_SERVERKEY);
+    public byte[] curveServerKey() {
+        return this.getByteOption(SocketOption.ZMQ_CURVE_SERVERKEY,32);
     }
 
-    public void curveServerKey(String value) {
-        this.setStringOption(SocketOption.ZMQ_CURVE_SERVERKEY, value);
+    public void curveServerKey(byte[] value) {
+        this.setByteOption(SocketOption.ZMQ_CURVE_SERVERKEY, value);
     }
 
     public boolean gssApiPlainText() {
@@ -204,8 +292,8 @@ public class Socket implements AutoCloseable {
         return this.getIntOption(SocketOption.ZMQ_GSSAPI_PRINCIPAL_NAMETYPE);
     }
 
-    public void gssApiPrincipalNameType(int value) {
-        this.setIntOption(SocketOption.ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE, value);
+    public void gssApiPrincipalNameType(GssApiPrincipalNameTypes types) {
+        this.setIntOption(SocketOption.ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE, types.value());
     }
 
     public int handShakeInterval() {
@@ -400,12 +488,12 @@ public class Socket implements AutoCloseable {
         this.setBooleanOption(SocketOption.ZMQ_ROUTER_MANDATORY, value);
     }
 
-    public String routingId() {
-        return this.getStringOption(SocketOption.ZMQ_ROUTING_ID);
+    public byte[] routingId() {
+        return this.getByteOption(SocketOption.ZMQ_ROUTING_ID,maxOptionSize);
     }
 
-    public void routingId(String value) {
-        this.setStringOption(SocketOption.ZMQ_ROUTING_ID, value);
+    public void routingId(byte[] value) {
+        this.setByteOption(SocketOption.ZMQ_ROUTING_ID, value);
     }
 
     public int sendBufferSize() {
@@ -444,8 +532,8 @@ public class Socket implements AutoCloseable {
         this.setBooleanOption(SocketOption.ZMQ_STREAM_NOTIFY, value);
     }
 
-    public void subscribe(String value) {
-        this.setStringOption(SocketOption.ZMQ_SUBSCRIBE, value);
+    public void subscribe(byte[] value) {
+        this.setByteOption(SocketOption.ZMQ_SUBSCRIBE, value);
     }
 
     public int tcpKeepAlive() {
@@ -496,9 +584,38 @@ public class Socket implements AutoCloseable {
         this.setIntOption(SocketOption.ZMQ_TOS, value);
     }
 
-    public void unsubscribe(String value) {
-        this.setStringOption(SocketOption.ZMQ_UNSUBSCRIBE, value);
+    public void unsubscribe(byte[] value) {
+        this.setByteOption(SocketOption.ZMQ_UNSUBSCRIBE, value);
     }
+
+    public long vmciBufferSize(){
+        return this.getLongOption(SocketOption.ZMQ_VMCI_BUFFER_SIZE);
+    }
+    public void vmciBufferSize(long value){
+        this.setLongOption(SocketOption.ZMQ_VMCI_BUFFER_SIZE,value);
+    }
+
+    public long vmciBufferMinSize(){
+        return this.getLongOption(SocketOption.ZMQ_VMCI_BUFFER_MIN_SIZE);
+    }
+    public void vmciBufferMinSize(long value){
+        this.setLongOption(SocketOption.ZMQ_VMCI_BUFFER_MIN_SIZE,value);
+    }
+
+    public long vmciBufferMaxSize(){
+        return this.getLongOption(SocketOption.ZMQ_VMCI_BUFFER_MAX_SIZE);
+    }
+    public void vmciBufferMaxSize(long value){
+        this.setLongOption(SocketOption.ZMQ_VMCI_BUFFER_MAX_SIZE,value);
+    }
+
+    public int vmciConnectTimeout(){
+        return this.getIntOption(SocketOption.ZMQ_VMCI_CONNECT_TIMEOUT);
+    }
+    public void vmciConnectTimeout(int value){
+        this.setIntOption(SocketOption.ZMQ_VMCI_CONNECT_TIMEOUT,value);
+    }
+
 
     public void xPubVerbose(boolean value) {
         this.setBooleanOption(SocketOption.ZMQ_XPUB_VERBOSE, value);
@@ -520,9 +637,6 @@ public class Socket implements AutoCloseable {
         this.setBooleanOption(SocketOption.ZMQ_XPUB_NODROP, value);
     }
 
-    public boolean xPubNoDrop() {
-        return this.getBooleanOption(SocketOption.ZMQ_XPUB_NODROP);
-    }
 
     public void xPubWelcomeMessage(String value) {
         this.setStringOption(SocketOption.ZMQ_XPUB_WELCOME_MSG, value);
@@ -532,6 +646,14 @@ public class Socket implements AutoCloseable {
 
     public void zapDomain(String value) {
         this.setStringOption(SocketOption.ZMQ_ZAP_DOMAIN, value);
+    }
+
+    // draft api
+    public boolean zapEnforceDomain() {return this.getBooleanOption(SocketOption.ZMQ_ZAP_ENFORCE_DOMAIN);}
+
+    // draft api
+    public void zapEnforceDomain(boolean value) {
+        this.setBooleanOption(SocketOption.ZMQ_ZAP_ENFORCE_DOMAIN, value);
     }
 
     public String lastEndpoint() {
@@ -551,32 +673,28 @@ public class Socket implements AutoCloseable {
     }
 
     public int bindToRandomPort(String endpoint, int minPort, int maxPort, int maxTries) {
-        Random random = new Random();
-        int port = 0;
-
-        while(port < maxTries) {
-            int var5 = random.nextInt(maxPort - minPort + 1) + minPort;
-
+        int port;
+        Random rand = new Random();
+        for (int i = 0; i < maxTries; i++) {
+            port = rand.nextInt(maxPort - minPort + 1) + minPort;
             try {
-                this._bind(String.format("%s:%s", endpoint, var5));
-                return var5;
-            } catch (ZMQException var9) {
-                if ((long)var9.getErrorCode() != ZMQ._EADDRINUSE()) {
-                    throw var9;
+                bind(String.format("%s:%s", endpoint, port));
+                return port;
+            } catch (ZMQException e) {
+                if (e.getErrorCode() != ZMQ.EADDRINUSE()) {
+                    throw e;
                 }
-
-                ++port;
+                continue;
             }
         }
-
-        throw new ZMQException("Could not bind socket to random port.", (int)ZMQ._EADDRINUSE());
+        throw new ZMQException("Could not bind socket to random port.", (int) ZMQ.EADDRINUSE());
     }
 
-    public String bindToSystemRandomPort(String var1) {
-        this._bind(String.format("%s:*", var1));
-        String var2 = this.lastEndpoint();
-        String var3 = var2.substring(var2.lastIndexOf(":") + 1);
-        return var3;
+    public String bindToSystemRandomPort(String endpoint) {
+        this._bind(String.format("%s:*", endpoint));
+        String lastEndpoint = this.lastEndpoint();
+        String port = lastEndpoint.substring(lastEndpoint.lastIndexOf(":") + 1);
+        return port;
     }
 
     private boolean getBooleanOption(int option) {
@@ -603,8 +721,8 @@ public class Socket implements AutoCloseable {
         return this._getLongSockopt(option);
     }
 
-    private byte[] getByteOption(int option) {
-        return this._getBytesSockopt(option);
+    private byte[] getByteOption(int option,int optionValueSize) {
+        return this._getBytesSockopt(option,optionValueSize);
     }
 
     private void setByteOption(int option, byte[] value) {
@@ -612,18 +730,48 @@ public class Socket implements AutoCloseable {
     }
 
     private String getStringOption(int option) {
-        return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(this.getByteOption(option))).toString();
+        byte[] byteOption = this.getByteOption(option,maxOptionSize);
+        if( byteOption.length <= 1){
+            return "";
+        }
+        return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(byteOption,0,byteOption.length-1)).toString();
     }
 
     private void setStringOption(int option, String value) {
         this.setByteOption(option, value.getBytes(StandardCharsets.UTF_8));
     }
 
-    static {
-        if (!EmbeddedLibraryTools.LOADED_EMBEDDED_LIBRARY) {
-            System.loadLibrary("zmqj");
-        }
 
-        _nativeInit();
+    public int fd() {
+        return getIntOption(SocketOption.ZMQ_FD);
+    }
+
+
+    public void metaData(String value) {
+        this.setStringOption(SocketOption.ZMQ_METADATA,value);
+    }
+
+    public boolean multicastLoop() {
+        return this.getBooleanOption(SocketOption.ZMQ_MULTICAST_LOOP);
+    }
+
+    public void multicastLoop(boolean value) {
+         this.setBooleanOption(SocketOption.ZMQ_MULTICAST_LOOP,value);
+    }
+
+    public RouterNotifyOption routerNotify() {
+        return RouterNotifyOption.valueOf(this.getIntOption(SocketOption.ZMQ_ROUTER_NOTIFY));
+    }
+
+    public void routerNotify(RouterNotifyOption value) {
+        this.setIntOption(SocketOption.ZMQ_ROUTER_NOTIFY,value.value());
+    }
+
+    public int events() {
+        return this.getIntOption(SocketOption.ZMQ_EVENTS);
+    }
+
+    public SocketType type() {
+        return SocketType.valueOf(this.getIntOption(SocketOption.ZMQ_TYPE));
     }
 }

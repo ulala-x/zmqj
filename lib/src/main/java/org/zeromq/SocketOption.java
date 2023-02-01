@@ -31,6 +31,7 @@ public class SocketOption {
     public static final int ZMQ_TCP_KEEPALIVE_INTVL = 37;
     public static final int ZMQ_IMMEDIATE = 39;
     public static final int ZMQ_XPUB_VERBOSE = 40;
+    @Deprecated
     public static final int ZMQ_ROUTER_RAW = 41;
     public static final int ZMQ_IPV6 = 42;
     public static final int ZMQ_MECHANISM = 43;
@@ -77,8 +78,32 @@ public class SocketOption {
     public static final int ZMQ_GSSAPI_PRINCIPAL_NAMETYPE = 90;
     public static final int ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE = 91;
     public static final int ZMQ_BINDTODEVICE = 92;
-    public static final int MAX_OPTION_RESULT_LEN = 1024;
-    public static final int MAX_OPTION_LEN = 256;
+
+    /*
+     DRAFT Socket options.
+    */
+
+    public static final int ZMQ_ZAP_ENFORCE_DOMAIN = 93;
+    public static final int ZMQ_LOOPBACK_FASTPATH = 94;
+    public static final int ZMQ_METADATA = 95;
+    public static final int ZMQ_MULTICAST_LOOP = 96;
+    public static final int ZMQ_ROUTER_NOTIFY = 97;
+    public static final int ZMQ_XPUB_MANUAL_LAST_VALUE = 98;
+    public static final int ZMQ_SOCKS_USERNAME = 99;
+    public static final int ZMQ_SOCKS_PASSWORD = 100;
+    public static final int ZMQ_IN_BATCH_SIZE = 101;
+    public static final int ZMQ_OUT_BATCH_SIZE = 102;
+    public static final int ZMQ_WSS_KEY_PEM = 103;
+    public static final int ZMQ_WSS_CERT_PEM = 104;
+    public static final int ZMQ_WSS_TRUST_PEM = 105;
+    public static final int ZMQ_WSS_HOSTNAME = 106;
+    public static final int ZMQ_WSS_TRUST_SYSTEM = 107;
+    public static final int ZMQ_ONLY_FIRST_SUBSCRIBE = 108;
+    public static final int ZMQ_RECONNECT_STOP = 109;
+    public static final int ZMQ_HELLO_MSG = 110;
+    public static final int ZMQ_DISCONNECT_MSG = 111;
+    public static final int ZMQ_PRIORITY = 112;
+
 
     public SocketOption() {
     }

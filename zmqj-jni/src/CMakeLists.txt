@@ -5,6 +5,11 @@ set(ZMQJ_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/socket.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/context.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/util.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/ZMQ.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/ZMQEvent.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/curve.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/poller.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/zframe.cpp"
 )
 set(ZMQJ_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/socket.h")
 set(ZMQJ_INCLUDES 
@@ -34,16 +39,17 @@ set(java-sources-dir
     ../../../lib/src/main/java/org/zeromq
 )
 set(javah-headers
-	org_zeromq_Context.h
-	org_zeromq_Socket.h
+	org_zeromq_ZMQContext.h
+	org_zeromq_ZMQSocket.h
 	org_zeromq_ZMQ.h
+	org_zeromq_ZMQEvent.h
+	org_zeromq_ZMQCurve.h
+	org_zeromq_ZMQPoller.h
+	org_zeromq_ZFrame.h
 )
 
-add_custom_command(
-	OUTPUT ${javah-headers}
-	COMMAND ${Java_JAVAC_EXECUTABLE} -h . ${java-sources-dir}/*.java	
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)
+
+
 
 
 add_library(${ZMQJ} SHARED ${ZMQJ_SOURCES}  ${ZMQJ_HEADERS} ${javah-headers})
@@ -52,8 +58,26 @@ target_link_libraries(
     ${ZMQJ}
     libzmq
 )
+
+add_custom_command(
+    TARGET ${ZMQJ}  PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E remove *.h
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_custom_command(
+	TARGET ${ZMQJ}  PRE_BUILD
+	COMMAND ${Java_JAVAC_EXECUTABLE} -h . ${java-sources-dir}/*.java
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
  
-get_filename_component(JAVA_NATIVE_RESOURCES_PATH "../../../../lib/src/main/resource/NATIVE" ABSOLUTE)
+get_filename_component(JAVA_NATIVE_RESOURCES_PATH 
+	"../../../zmqj/lib/src/main/resources/NATIVE" 
+	ABSOLUTE
+)
+
+message(STATUS ${JAVA_NATIVE_RESOURCES_PATH})
 
 if(${CMAKE_SYSTEM} MATCHES Linux)
 	message(STATUS "linux platform")
@@ -61,7 +85,8 @@ if(${CMAKE_SYSTEM} MATCHES Linux)
         TARGET ${ZMQJ}  POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
                 ${CMAKE_BINARY_DIR}/_deps/zeromq-build/lib/libzmq.so
-                ${JAVA_NATIVE_RESOURCES_PATH}/Linux/x86_64/libzmq.so)
+                ${JAVA_NATIVE_RESOURCES_PATH}/Linux/x86_64/libzmq.so
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 	add_custom_command(
         TARGET ${ZMQJ}  POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
