@@ -75,7 +75,7 @@ Java_org_zeromq_ZMQ__1EADDRINUSE (JNIEnv *env, jclass cls)
 }
 
 JNIEXPORT jlong JNICALL
-Java_org_zeromq_ZMQ_EADDRNOTAVAIL (JNIEnv *env, jclass cls)
+Java_org_zeromq_ZMQ__1EADDRNOTAVAIL (JNIEnv *env, jclass cls)
 {
     return EADDRNOTAVAIL;
 }

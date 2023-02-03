@@ -5,12 +5,12 @@
 
 #include "zmqj.h"
 #include "util.h"
-#include "org_zeromq_ZMQEvent.h"
+#include "org_zeromq_ZEvent.h"
 
 static jmethodID constructor;
 
 
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQEvent__1nativeInit(JNIEnv *env, jclass cls)
+JNIEXPORT void JNICALL Java_org_zeromq_ZEvent__1nativeInit(JNIEnv *env, jclass cls)
 {
     constructor = env->GetMethodID(cls, "<init>", "(IILjava/lang/String;)V");
     assert(constructor);
@@ -50,7 +50,7 @@ read_msg(JNIEnv *env, void *socket, zmq_msg_t *msg, int flags)
     return msg;
 }
 
-JNIEXPORT jobject JNICALL Java_org_zeromq_ZMQEvent__1recv(JNIEnv *env, jclass cls, jlong socket, jint flags)
+JNIEXPORT jobject JNICALL Java_org_zeromq_ZEvent__1recv(JNIEnv *env, jclass cls, jlong socket, jint flags)
 {
     zmq_msg_t event_msg;
 

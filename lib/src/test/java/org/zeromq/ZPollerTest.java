@@ -4,14 +4,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class ZMQPollerTest {
+public class ZPollerTest {
 
     @Test
     public void testPollerUnregister() {
-        ZMQContext context = new ZMQContext(1);
-        ZMQSocket socketOne = new ZMQSocket(context,SocketType.SUB);
-        ZMQSocket socketTwo = new ZMQSocket(context,SocketType.REP);
-        ZMQPoller poller = new ZMQPoller(2);
+        ZContext context = new ZContext(1);
+        ZSocket socketOne = new ZSocket(context,SocketType.SUB);
+        ZSocket socketTwo = new ZSocket(context,SocketType.REP);
+        ZPoller poller = new ZPoller(2);
         poller.register(socketOne, PollEvent.POLLIN);
         poller.register(socketTwo, PollEvent.POLLIN);
 
@@ -28,9 +28,9 @@ public class ZMQPollerTest {
 
     @Test
     public void testPollingInvalidSockets() {
-        ZMQContext context = new ZMQContext(1);
-        ZMQSocket socketOne = new ZMQSocket(context,SocketType.SUB);
-        ZMQPoller poller = new ZMQPoller(2);
+        ZContext context = new ZContext(1);
+        ZSocket socketOne = new ZSocket(context,SocketType.SUB);
+        ZPoller poller = new ZPoller(2);
 
 
         poller.register(socketOne, PollEvent.POLLIN);

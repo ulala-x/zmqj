@@ -175,3 +175,14 @@ JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZFrame__1data(JNIEnv * env, jobject
     return data;
 
 }
+
+JNIEXPORT jint JNICALL Java_org_zeromq_ZFrame__1length(JNIEnv * env, jobject obj){
+ zmq_msg_t* message = (zmq_msg_t*)get_message (env, obj);
+    if (message==NULL){
+         raise_exception(env,EFAULT);
+         return 0;
+    }
+
+    int sz = zmq_msg_size (message);
+    return sz;
+}

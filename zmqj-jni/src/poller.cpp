@@ -23,7 +23,7 @@
 
 #include "zmqj.h"
 #include "util.h"
-#include "org_zeromq_ZMQPoller.h"
+#include "org_zeromq_ZPoller.h"
 
 static jfieldID field_channel;
 static jfieldID field_socket;
@@ -34,7 +34,7 @@ static void *fetch_socket (JNIEnv *env, jobject socket);
 static int fetch_socket_fd (JNIEnv *env, jobject socket);
 
 JNIEXPORT jint JNICALL
-Java_org_zeromq_ZMQPoller__1run_1poll (JNIEnv *env, jclass cls, jobjectArray socket_0mq, jint count, jlong timeout)
+Java_org_zeromq_ZPoller__1run_1poll (JNIEnv *env, jclass cls, jobjectArray socket_0mq, jint count, jlong timeout)
 {
     int ls = (int) count;
     if (ls <= 0) {
@@ -119,7 +119,7 @@ static void* fetch_socket (JNIEnv *env, jobject item){
         cls = env->GetObjectClass (item);
         assert (cls);
         field_channel = env->GetFieldID (cls, "channel", "Ljava/nio/channels/SelectableChannel;");
-        field_socket = env->GetFieldID (cls, "socket", "Lorg/zeromq/ZMQSocket;");
+        field_socket = env->GetFieldID (cls, "socket", "Lorg/zeromq/ZSocket;");
         field_events = env->GetFieldID (cls, "events", "I");
         field_revents = env->GetFieldID (cls, "revents", "I");
         env->DeleteLocalRef (cls);

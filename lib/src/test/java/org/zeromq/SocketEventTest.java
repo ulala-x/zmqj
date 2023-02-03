@@ -12,10 +12,10 @@ public class SocketEventTest {
     @EnumSource(value= EventType.class,names = {"EVENT_CONNECTED"})
     public void testEventConnected(EventType event) {
 
-        try(ZMQContext context = new ZMQContext(1);
-            ZMQSocket reqSocket = new ZMQSocket(context, SocketType.REQ);
-            ZMQSocket repSocket = new ZMQSocket(context, SocketType.REP);
-            ZMQSocket monitor = new ZMQSocket(context, SocketType.PAIR)){
+        try(ZContext context = new ZContext(1);
+            ZSocket reqSocket = new ZSocket(context, SocketType.REQ);
+            ZSocket repSocket = new ZSocket(context, SocketType.REP);
+            ZSocket monitor = new ZSocket(context, SocketType.PAIR)){
 
             int port = reqSocket.bindToRandomPort("tcp://127.0.0.1");
 
@@ -27,49 +27,49 @@ public class SocketEventTest {
             repSocket.connect("tcp://127.0.0.1:" + port);
 
 
-            ZMQEvent zmqEvent = ZMQEvent.recv(monitor);
-            assertThat(zmqEvent).isNotNull();
-            assertThat(zmqEvent.getEvent()).isEqualTo(event);
-            assertThat(zmqEvent.getAddress()).isEqualTo("tcp://127.0.0.1:" + port);
+            ZEvent zEvent = ZEvent.recv(monitor);
+            assertThat(zEvent).isNotNull();
+            assertThat(zEvent.getEvent()).isEqualTo(event);
+            assertThat(zEvent.getAddress()).isEqualTo("tcp://127.0.0.1:" + port);
         }
     }
     @ParameterizedTest
     @EnumSource(value= EventType.class,names = {"EVENT_CONNECT_DELAYED","EVENT_CONNECT_RETRIED"})
     public void testEventConnect(EventType event) {
 
-        try(ZMQContext context = new ZMQContext(1);
-            ZMQSocket socket = new ZMQSocket(context, SocketType.REP);
-            ZMQSocket monitor = new ZMQSocket(context, SocketType.PAIR)){
+        try(ZContext context = new ZContext(1);
+            ZSocket socket = new ZSocket(context, SocketType.REP);
+            ZSocket monitor = new ZSocket(context, SocketType.PAIR)){
 
             assertThat(socket.monitor("inproc://monitor.socket", event)).isTrue();
             monitor.connect("inproc://monitor.socket");
             socket.connect("tcp://127.0.0.1:6751");
-            ZMQEvent zmqEvent = ZMQEvent.recv(monitor);
-            assertThat(zmqEvent.getEvent()).isEqualTo(event);
+            ZEvent zEvent = ZEvent.recv(monitor);
+            assertThat(zEvent.getEvent()).isEqualTo(event);
         }
     }
 
 
     @Test
     public void testEventListening() {
-        try(ZMQContext context = new ZMQContext(1);
-            ZMQSocket socket = new ZMQSocket(context, SocketType.REQ);
-            ZMQSocket monitor = new ZMQSocket(context, SocketType.PAIR);
+        try(ZContext context = new ZContext(1);
+            ZSocket socket = new ZSocket(context, SocketType.REQ);
+            ZSocket monitor = new ZSocket(context, SocketType.PAIR);
         ){
             assertThat(socket.monitor("inproc://monitor.socket", EventType.EVENT_LISTENING)).isTrue();
             monitor.connect("inproc://monitor.socket");
 
             socket.bindToRandomPort("tcp://127.0.0.1");
-            ZMQEvent event = ZMQEvent.recv(monitor);
+            ZEvent event = ZEvent.recv(monitor);
             assertThat(event.getEvent()).isEqualTo(EventType.EVENT_LISTENING);
         }
     }
 //
     @Test
     public void testEventBindFailed() {
-        try(ZMQContext context = new ZMQContext(1);
-            ZMQSocket socket = new ZMQSocket(context, SocketType.REQ);
-            ZMQSocket monitor = new ZMQSocket(context, SocketType.PAIR);
+        try(ZContext context = new ZContext(1);
+            ZSocket socket = new ZSocket(context, SocketType.REQ);
+            ZSocket monitor = new ZSocket(context, SocketType.PAIR);
         ){
             assertThat(socket.monitor("inproc://monitor.socket", EventType.EVENT_BIND_FAILED)).isTrue();
             monitor.connect("inproc://monitor.socket");
@@ -78,24 +78,24 @@ public class SocketEventTest {
                 socket.bind("tcp://192.0.0.1");
             } catch (ZMQException ex) {}
 
-            ZMQEvent event = ZMQEvent.recv(monitor);
+            ZEvent event = ZEvent.recv(monitor);
             assertThat(event.getEvent()).isEqualTo(EventType.EVENT_BIND_FAILED);
         }
     }
 //
     @Test
     public void testEventAccepted() {
-        try(ZMQContext context = new ZMQContext(1);
-            ZMQSocket socket = new ZMQSocket(context, SocketType.REQ);
-            ZMQSocket monitor = new ZMQSocket(context, SocketType.PAIR);
-            ZMQSocket client = new ZMQSocket(context, SocketType.REP)
+        try(ZContext context = new ZContext(1);
+            ZSocket socket = new ZSocket(context, SocketType.REQ);
+            ZSocket monitor = new ZSocket(context, SocketType.PAIR);
+            ZSocket client = new ZSocket(context, SocketType.REP)
         ) {
             assertThat(socket.monitor("inproc://monitor.socket", EventType.EVENT_ACCEPTED)).isTrue();
             monitor.connect("inproc://monitor.socket");
 
             int port = socket.bindToRandomPort("tcp://127.0.0.1");
             client.connect("tcp://127.0.0.1:" + port);
-            ZMQEvent event = ZMQEvent.recv(monitor);
+            ZEvent event = ZEvent.recv(monitor);
             assertThat(event.getEvent()).isEqualTo(EventType.EVENT_ACCEPTED);
         }
     }
@@ -103,9 +103,9 @@ public class SocketEventTest {
     @Test
     public void testEventClosed() {
 
-        ZMQContext context = new ZMQContext(1);
-        ZMQSocket socket = new ZMQSocket(context, SocketType.REQ);
-        ZMQSocket monitor = new ZMQSocket(context, SocketType.PAIR);
+        ZContext context = new ZContext(1);
+        ZSocket socket = new ZSocket(context, SocketType.REQ);
+        ZSocket monitor = new ZSocket(context, SocketType.PAIR);
 
         assertThat(socket.monitor("inproc://monitor.socket", EventType.EVENT_CLOSED)).isTrue();
         monitor.connect("inproc://monitor.socket");
@@ -114,7 +114,7 @@ public class SocketEventTest {
 
         socket.close();
 
-        ZMQEvent event = ZMQEvent.recv(monitor);
+        ZEvent event = ZEvent.recv(monitor);
 
         assertThat(event.getEvent()).isEqualTo(EventType.EVENT_CLOSED);
 
@@ -124,10 +124,10 @@ public class SocketEventTest {
 
     @Test
     public void testEventDisconnectedWithServer() {
-        try(ZMQContext context = new ZMQContext(1);
-            ZMQSocket server = new ZMQSocket(context, SocketType.REQ);
-            ZMQSocket monitor = new ZMQSocket(context, SocketType.PAIR);
-            ZMQSocket client = new ZMQSocket(context, SocketType.REP)
+        try(ZContext context = new ZContext(1);
+            ZSocket server = new ZSocket(context, SocketType.REQ);
+            ZSocket monitor = new ZSocket(context, SocketType.PAIR);
+            ZSocket client = new ZSocket(context, SocketType.REP)
         ) {
             assertThat(server.monitor("inproc://monitor.socket", EventType.EVENT_DISCONNECTED)).isTrue();
             monitor.connect("inproc://monitor.socket");
@@ -135,17 +135,17 @@ public class SocketEventTest {
             int port = server.bindToRandomPort("tcp://127.0.0.1");
             client.connect("tcp://127.0.0.1:" + port);
             client.close();
-            ZMQEvent event = ZMQEvent.recv(monitor);
+            ZEvent event = ZEvent.recv(monitor);
             assertThat(event.getEvent()).isEqualTo(EventType.EVENT_DISCONNECTED);
             System.out.println(event.getAddress());
         }
     }
     @Test
     public void testEventDisconnectedWithClient() throws InterruptedException {
-        try(ZMQContext context = new ZMQContext(1);
-            ZMQSocket server = new ZMQSocket(context, SocketType.REP);
-            ZMQSocket monitor = new ZMQSocket(context, SocketType.PAIR);
-            ZMQSocket client = new ZMQSocket(context, SocketType.REQ)
+        try(ZContext context = new ZContext(1);
+            ZSocket server = new ZSocket(context, SocketType.REP);
+            ZSocket monitor = new ZSocket(context, SocketType.PAIR);
+            ZSocket client = new ZSocket(context, SocketType.REQ)
         ) {
             assertThat(client.monitor("inproc://monitor.socket", EventType.EVENT_DISCONNECTED)).isTrue();
             monitor.connect("inproc://monitor.socket");
@@ -165,7 +165,7 @@ public class SocketEventTest {
             });
             thread.start();
 
-            ZMQEvent event = ZMQEvent.recv(monitor);
+            ZEvent event = ZEvent.recv(monitor);
             assertThat(event.getEvent()).isEqualTo(EventType.EVENT_DISCONNECTED);
             System.out.println(event.getAddress());
         }
@@ -173,16 +173,16 @@ public class SocketEventTest {
 
     @Test
     public void testEventMonitorStopped() {
-        try(ZMQContext context = new ZMQContext(1);
-            ZMQSocket socket = new ZMQSocket(context, SocketType.REQ);
-            ZMQSocket monitor = new ZMQSocket(context, SocketType.PAIR);
+        try(ZContext context = new ZContext(1);
+            ZSocket socket = new ZSocket(context, SocketType.REQ);
+            ZSocket monitor = new ZSocket(context, SocketType.PAIR);
         ){
             assertThat(socket.monitor("inproc://monitor.socket", EventType.EVENT_MONITOR_STOPPED)).isTrue();
             monitor.connect("inproc://monitor.socket");
 
             socket.monitor(null, EventType.NONE);
 
-            ZMQEvent event = ZMQEvent.recv(monitor);
+            ZEvent event = ZEvent.recv(monitor);
             assertThat(event.getEvent()).isEqualTo(EventType.EVENT_MONITOR_STOPPED);
         }
     }

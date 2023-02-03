@@ -2,20 +2,18 @@ package org.zeromq;
 
 import org.junit.jupiter.api.Test;
 
-import java.nio.ByteBuffer;
-
 import static org.assertj.core.api.Assertions.*;
 
-public class ZMQSocketTest {
+public class ZSocketTest {
 
     @Test
     public void testReqRep() {
 
-        ZMQContext context = new ZMQContext(1);
-        ZMQSocket in = new ZMQSocket(context, SocketType.REQ);
+        ZContext context = new ZContext(1);
+        ZSocket in = new ZSocket(context, SocketType.REQ);
         in.bind("inproc://reqrep");
 
-        ZMQSocket out = new ZMQSocket(context, SocketType.REP);
+        ZSocket out = new ZSocket(context, SocketType.REP);
         out.connect("inproc://reqrep");
 
 
@@ -33,81 +31,18 @@ public class ZMQSocketTest {
         }
     }
 
-    @Test
-    public void testReqRepWithZMQMsg() {
-
-        ZMQContext context = new ZMQContext(1);
-        ZMQSocket in = new ZMQSocket(context, SocketType.REQ);
-        in.bind("inproc://reqrep");
-
-        ZMQSocket out = new ZMQSocket(context, SocketType.REP);
-        out.connect("inproc://reqrep");
-
-
-        for (int i = 0; i < 100; i++) {
-            byte[] req = ("request" + i).getBytes();
-            byte[] rep = ("reply" + i).getBytes();
-
-            ZFrame msgReq = new ZFrame(req);
-            assertThat(in.send(msgReq, SendFlag.WAIT)).isTrue();
-
-            try(ZFrame reqTmp = out.receive(RecvFlag.WAIT)){
-                assertThat(reqTmp.data()).isEqualTo(req);
-            }
-
-            ZFrame msgRep = new ZFrame(rep);
-            assertThat(out.send(msgRep, SendFlag.WAIT)).isTrue();
-            try(ZFrame repTmp = in.receive(RecvFlag.WAIT)){
-                assertThat(repTmp.data()).isEqualTo(rep);
-            }
-
-        }
-    }
-
-    @Test
-    public void testReqRepWithZMQMsgWithByteBuffer() {
-
-        ZMQContext context = new ZMQContext(1);
-        ZMQSocket in = new ZMQSocket(context, SocketType.REQ);
-        in.bind("inproc://reqrep");
-
-        ZMQSocket out = new ZMQSocket(context, SocketType.REP);
-        out.connect("inproc://reqrep");
-
-
-        for (int i = 0; i < 100; i++) {
-            byte[] req = ("request" + i).getBytes();
-            byte[] rep = ("reply" + i).getBytes();
-
-            var reqBuffer = ByteBuffer.allocateDirect(req.length).put(req).flip();
-            var repBuffer = ByteBuffer.allocateDirect(req.length).put(rep).flip();
-
-            ZFrame msgReq = new ZFrame(reqBuffer,true);
-            assertThat(in.send(msgReq, SendFlag.WAIT)).isTrue();
-
-            try(ZFrame reqTmp = out.receive(RecvFlag.WAIT)){
-                assertThat(reqTmp.data()).isEqualTo(req);
-            }
-
-            ZFrame msgRep = new ZFrame(repBuffer,false);
-            assertThat(out.send(msgRep, SendFlag.WAIT)).isTrue();
-            try(ZFrame repTmp = in.receive(RecvFlag.WAIT)){
-                assertThat(repTmp.data()).isEqualTo(rep);
-            }
-        }
-    }
 
     @Test
     public void testXPUBSUB() {
 
-        ZMQContext context = new ZMQContext(1);
+        ZContext context = new ZContext(1);
 
-        ZMQSocket xPub = new ZMQSocket(context, SocketType.XPUB);
+        ZSocket xPub = new ZSocket(context, SocketType.XPUB);
         xPub.bind("inproc://xpub");
 
-        ZMQSocket sub = new ZMQSocket(context, SocketType.SUB);
+        ZSocket sub = new ZSocket(context, SocketType.SUB);
         sub.connect("inproc://xpub");
-        ZMQSocket xSub = new ZMQSocket(context, SocketType.XSUB);
+        ZSocket xSub = new ZSocket(context, SocketType.XSUB);
         xSub.connect("inproc://xpub");
 
         sub.subscribe("".getBytes());
@@ -153,23 +88,23 @@ public class ZMQSocketTest {
     @Test
     public void testSetXPubVerbose() {
 
-        ZMQContext context = new ZMQContext(1);
+        ZContext context = new ZContext(1);
 
         byte[] topic = "topic".getBytes();
         byte[] subscription = new byte[topic.length + 1];
         subscription[0] = 1;
         System.arraycopy(topic, 0, subscription, 1, topic.length);
 
-        ZMQSocket xPubVerbose = new ZMQSocket(context, SocketType.XPUB);
+        ZSocket xPubVerbose = new ZSocket(context, SocketType.XPUB);
         xPubVerbose.xPubVerbose(true);
         xPubVerbose.bind("inproc://xpub_verbose");
 
-        ZMQSocket xPubDefault = new ZMQSocket(context, SocketType.XPUB);
+        ZSocket xPubDefault = new ZSocket(context, SocketType.XPUB);
         xPubDefault.bind("inproc://xpub_default");
 
-        ZMQSocket[] xSubs = new ZMQSocket[3];
+        ZSocket[] xSubs = new ZSocket[3];
         for (int i = 0; i < xSubs.length; i++) {
-            xSubs[i] = new ZMQSocket(context, SocketType.XSUB);
+            xSubs[i] = new ZSocket(context, SocketType.XSUB);
             xSubs[i].connect("inproc://xpub_verbose");
             xSubs[i].connect("inproc://xpub_default");
         }
@@ -190,15 +125,15 @@ public class ZMQSocketTest {
         }
         xPubVerbose.close();
         xPubDefault.close();
-        context.term();
+        context.close();
     }
 
     static class Client extends Thread {
 
-        private ZMQSocket socket;
+        private ZSocket socket;
         private String name;
-        public Client(ZMQContext ctx, String name_) {
-            socket = new ZMQSocket(ctx, SocketType.REQ);
+        public Client(ZContext ctx, String name_) {
+            socket = new ZSocket(ctx, SocketType.REQ);
             name = name_;
             socket.routingId(name.getBytes());
         }
@@ -216,11 +151,11 @@ public class ZMQSocketTest {
 
     static class Dealer extends Thread {
 
-        private ZMQSocket socket;
+        private ZSocket socket;
         private String name;
 
-        public Dealer(ZMQContext ctx, String name_) {
-            socket = new ZMQSocket(ctx, SocketType.DEALER);
+        public Dealer(ZContext ctx, String name_) {
+            socket = new ZSocket(ctx, SocketType.DEALER);
             name = name_;
 
             socket.routingId(name.getBytes());
@@ -260,20 +195,20 @@ public class ZMQSocketTest {
 
     static class Main extends Thread {
 
-        ZMQContext ctx;
+        ZContext ctx;
 
-        Main(ZMQContext ctx_) {
+        Main(ZContext ctx_) {
             ctx = ctx_;
         }
 
         @Override
         public void run() {
-            ZMQSocket frontend = new ZMQSocket(ctx, SocketType.ROUTER);
+            ZSocket frontend = new ZSocket(ctx, SocketType.ROUTER);
 
             assertThat(frontend).isNotNull();
             frontend.bind("tcp://127.0.0.1:6660");
 
-            ZMQSocket backend = new ZMQSocket(ctx, SocketType.DEALER);
+            ZSocket backend = new ZSocket(ctx, SocketType.DEALER);
             assertThat(backend).isNotNull();
             backend.bind("tcp://127.0.0.1:6661");
 
@@ -288,7 +223,7 @@ public class ZMQSocketTest {
     @Test
     public void testProxy() throws Exception {
 
-        ZMQContext ctx = new ZMQContext(1);
+        ZContext ctx = new ZContext(1);
         assert (ctx != null);
 
         Main main = new Main(ctx);
@@ -315,9 +250,9 @@ public class ZMQSocketTest {
     @Test
     public void testRouterMandatory() {
 
-        ZMQContext context = new ZMQContext(1);
+        ZContext context = new ZContext(1);
 
-        ZMQSocket routerSocket = new ZMQSocket(context, SocketType.ROUTER);
+        ZSocket routerSocket = new ZSocket(context, SocketType.ROUTER);
         boolean ret = routerSocket.send("UNREACHABLE".getBytes(), SendFlag.SEND_MORE);
         assertThat(ret).isTrue();
         routerSocket.send("END".getBytes(), SendFlag.WAIT);
@@ -342,11 +277,11 @@ public class ZMQSocketTest {
     @Test
     public void testRouterToRouter() throws InterruptedException {
 
-        ZMQSocket serverSocket = new ZMQSocket(SocketType.ROUTER);
+        ZSocket serverSocket = new ZSocket(SocketType.ROUTER);
         serverSocket.routingId("Server".getBytes());
         serverSocket.bind("tcp://127.0.0.1:7777");
 
-        ZMQSocket clientSocket = new ZMQSocket(SocketType.ROUTER);
+        ZSocket clientSocket = new ZSocket(SocketType.ROUTER);
         clientSocket.routingId("Client".getBytes());
         clientSocket.connect("tcp://127.0.0.1:7777");
 
@@ -372,9 +307,9 @@ public class ZMQSocketTest {
     @Test
     public void testSendMoreRequestReplyOverTcp() {
 
-        try(ZMQContext context = new ZMQContext(1);
-            ZMQSocket reply = new ZMQSocket(context, SocketType.REP);
-            ZMQSocket req = new ZMQSocket(context, SocketType.REQ)
+        try(ZContext context = new ZContext(1);
+            ZSocket reply = new ZSocket(context, SocketType.REP);
+            ZSocket req = new ZSocket(context, SocketType.REQ)
         ) {
             reply.bind("tcp://*:12345");
 
@@ -390,9 +325,9 @@ public class ZMQSocketTest {
     @Test
     public void testWritingToClosedSocket() {
 
-        try(ZMQContext context = new ZMQContext(1);
-            ZMQSocket reply = new ZMQSocket(context, SocketType.REP);
-            ZMQSocket req = new ZMQSocket(context, SocketType.REQ)
+        try(ZContext context = new ZContext(1);
+            ZSocket reply = new ZSocket(context, SocketType.REP);
+            ZSocket req = new ZSocket(context, SocketType.REQ)
         ) {
             reply.bind("tcp://*:12345");
 

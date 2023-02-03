@@ -21,10 +21,10 @@
 #include <assert.h>
 #include "zmqj.h"
 #include "util.h"
-#include "org_zeromq_ZMQCurve.h"
+#include "org_zeromq_ZCurve.h"
 
 
-JNIEXPORT jobject JNICALL Java_org_zeromq_ZMQCurve__1generateKeyPair(JNIEnv *env, jclass cls)
+JNIEXPORT jobject JNICALL Java_org_zeromq_ZCurve__1generateKeyPair(JNIEnv *env, jclass cls)
 {
     char public_key [41];
     char secret_key [41];
@@ -42,7 +42,7 @@ JNIEXPORT jobject JNICALL Java_org_zeromq_ZMQCurve__1generateKeyPair(JNIEnv *env
     jstring sk = env->NewStringUTF (secret_key);
     assert (sk);
 
-    jclass clz = env->FindClass ("org/zeromq/ZMQCurve$KeyPair");
+    jclass clz = env->FindClass ("org/zeromq/ZCurve$KeyPair");
     assert (clz);
     jmethodID midInit = env->GetMethodID (clz, "<init>", "(Ljava/lang/String;Ljava/lang/String;)V");
     assert (midInit);
@@ -53,7 +53,7 @@ JNIEXPORT jobject JNICALL Java_org_zeromq_ZMQCurve__1generateKeyPair(JNIEnv *env
 
 }
 
-JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZMQCurve__1z85Decode(JNIEnv *env, jclass cls, jstring key)
+JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZCurve__1z85Decode(JNIEnv *env, jclass cls, jstring key)
 {
     const char *in_key = env->GetStringUTFChars (key, NULL);
     assert (in_key);
@@ -74,7 +74,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZMQCurve__1z85Decode(JNIEnv *env, j
 }
 
 JNIEXPORT jstring JNICALL
-Java_org_zeromq_ZMQCurve__1z85Encode(JNIEnv *env, jclass cls, jbyteArray key)
+Java_org_zeromq_ZCurve__1z85Encode(JNIEnv *env, jclass cls, jbyteArray key)
 {
     jbyte *in_key = env->GetByteArrayElements (key, NULL);
     assert (in_key);

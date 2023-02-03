@@ -1,6 +1,6 @@
 package org.zeromq;
 
-public class ZMQCurve {
+public class ZCurve {
 
     static {
         if (!EmbeddedLibraryTools.LOADED_EMBEDDED_LIBRARY){

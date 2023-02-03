@@ -23,7 +23,7 @@
 
 #include "zmqj.h"
 #include "util.h"
-#include "org_zeromq_ZMQContext.h"
+#include "org_zeromq_ZContext.h"
 
 static jfieldID contextptrFID;
 
@@ -35,7 +35,7 @@ static void put_context (JNIEnv *env, jobject obj, void *s);
 /**
  * Called to construct a Java Context object.
  */
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQContext__1construct(JNIEnv* env, jobject obj, jint io_threads)
+JNIEXPORT void JNICALL Java_org_zeromq_ZContext__1construct(JNIEnv* env, jobject obj, jint io_threads)
 {
     void *c = get_context (env, obj);
     if (c)
@@ -54,7 +54,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQContext__1construct(JNIEnv* env, jobje
 /**
  * Called to destroy a Java Context object.
  */
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQContext__1destroy(JNIEnv *env, jobject obj)
+JNIEXPORT void JNICALL Java_org_zeromq_ZContext__1destroy(JNIEnv *env, jobject obj)
 {
     void *c = get_context (env, obj);
     if (! c)
@@ -72,7 +72,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQContext__1destroy(JNIEnv *env, jobject
 }
 
 
-JNIEXPORT jboolean JNICALL Java_org_zeromq_ZMQContext__1setMaxSockets(JNIEnv * env, jobject obj, jint maxSockets)
+JNIEXPORT jboolean JNICALL Java_org_zeromq_ZContext__1setMaxSockets(JNIEnv * env, jobject obj, jint maxSockets)
 {
     void *c = get_context (env, obj);
     if (! c)
@@ -81,7 +81,7 @@ JNIEXPORT jboolean JNICALL Java_org_zeromq_ZMQContext__1setMaxSockets(JNIEnv * e
     return result == 0;
 }
 
-JNIEXPORT jint JNICALL Java_org_zeromq_ZMQContext__1getMaxSockets(JNIEnv * env, jobject obj)
+JNIEXPORT jint JNICALL Java_org_zeromq_ZContext__1getMaxSockets(JNIEnv * env, jobject obj)
 {
     void *c = get_context (env, obj);
     if (! c)

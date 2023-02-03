@@ -10,14 +10,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SocketOptionTest {
 
-    ZMQSocket socket;
+    ZSocket socket;
 
     final String publicKey = "kFgdO=-)YJPbg(.?6yilC5MWmnp}0K.-";
     final String secretKey = "0*YCOy+-t/r}@>KIxUx5(H@rzjUOAj9X";
 
     @BeforeEach
     void setUp(){
-        socket = new ZMQSocket(SocketType.ROUTER);
+        socket = new ZSocket(SocketType.ROUTER);
     }
 
     @AfterEach
@@ -155,7 +155,7 @@ public class SocketOptionTest {
 
     @Test
     void invertMatching() throws IOException {
-        var pubSocket = new ZMQSocket(SocketType.PUB);
+        var pubSocket = new ZSocket(SocketType.PUB);
         assertThat(pubSocket.invertMatching()).isFalse();
         pubSocket.invertMatching(true);
         assertThat(pubSocket.invertMatching()).isTrue();
@@ -275,13 +275,13 @@ public class SocketOptionTest {
 
     @Test
     void requestCorrelate(){
-        var serverSocket= new ZMQSocket(SocketType.REQ);
+        var serverSocket= new ZSocket(SocketType.REQ);
         serverSocket.requestCorrelate(true);
     }
 
     @Test
     void requestRelaxed(){
-        var serverSocket= new ZMQSocket(SocketType.REQ);
+        var serverSocket= new ZSocket(SocketType.REQ);
         serverSocket.requestRelaxed(true);
     }
 
@@ -334,13 +334,13 @@ public class SocketOptionTest {
 
     @Test
     void streamNotify() {
-        ZMQSocket streamSocket = new ZMQSocket(SocketType.STREAM);
+        ZSocket streamSocket = new ZSocket(SocketType.STREAM);
         streamSocket.streamNotify(false);
     }
 
     @Test
     void subscribe(){
-        ZMQSocket subSocket = new ZMQSocket(SocketType.SUB);
+        ZSocket subSocket = new ZSocket(SocketType.SUB);
         subSocket.subscribe("sub".getBytes());
     }
 
@@ -388,37 +388,37 @@ public class SocketOptionTest {
 
     @Test
     void unsubscribe(){
-        ZMQSocket subSocket = new ZMQSocket(SocketType.SUB);
+        ZSocket subSocket = new ZSocket(SocketType.SUB);
         subSocket.unsubscribe("sub".getBytes());
     }
 
     @Test
     void xPubVerbose(){
-        ZMQSocket xpubSocket = new ZMQSocket(SocketType.XPUB);
+        ZSocket xpubSocket = new ZSocket(SocketType.XPUB);
         xpubSocket.xPubVerbose(true);
     }
 
     @Test
     void xPubVerboser(){
-        ZMQSocket xpubSocket = new ZMQSocket(SocketType.XPUB);
+        ZSocket xpubSocket = new ZSocket(SocketType.XPUB);
         xpubSocket.xPubVerboser(true);
     }
 
     @Test
     void xPubManual(){
-        ZMQSocket xpubSocket = new ZMQSocket(SocketType.XPUB);
+        ZSocket xpubSocket = new ZSocket(SocketType.XPUB);
         xpubSocket.xPubManual(true);
     }
 
     @Test
     void xPubNoDrop(){
-        ZMQSocket xPubSocket = new ZMQSocket(SocketType.XPUB);
+        ZSocket xPubSocket = new ZSocket(SocketType.XPUB);
         xPubSocket.xPubNoDrop(true);
     }
 
     @Test
     void xPubWelcomeMessage(){
-        ZMQSocket xpubSocket = new ZMQSocket(SocketType.XPUB);
+        ZSocket xpubSocket = new ZSocket(SocketType.XPUB);
         xpubSocket.xPubWelcomeMessage("welcome");
     }
 

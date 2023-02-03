@@ -34,4 +34,73 @@ public class ZFrameTest {
         assertThat(frame.data()).isEqualTo(message);
         frame.close();
     }
+
+    @Test
+    public void testReqRepWithZFrame() {
+
+        ZContext context = new ZContext(1);
+        ZSocket in = new ZSocket(context, SocketType.REQ);
+        in.bind("inproc://reqrep");
+
+        ZSocket out = new ZSocket(context, SocketType.REP);
+        out.connect("inproc://reqrep");
+
+
+        for (int i = 0; i < 100; i++) {
+            byte[] req = ("request" + i).getBytes();
+            byte[] rep = ("reply" + i).getBytes();
+
+            ZFrame msgReq = new ZFrame(req);
+            assertThat(in.send(msgReq, SendFlag.WAIT)).isTrue();
+
+            try(ZFrame reqTmp = out.receive(RecvFlag.WAIT)){
+                assertThat(reqTmp.data()).isEqualTo(req);
+            }
+
+            ZFrame msgRep = new ZFrame(rep);
+            assertThat(out.send(msgRep, SendFlag.WAIT)).isTrue();
+            try(ZFrame repTmp = in.receive(RecvFlag.WAIT)){
+                assertThat(repTmp.data()).isEqualTo(rep);
+            }
+        }
+
+        in.close();
+        out.close();
+
+        context.close();
+    }
+
+    @Test
+    public void testReqRepWithZFrameWithByteBuffer() {
+
+        ZContext context = new ZContext(1);
+        ZSocket in = new ZSocket(context, SocketType.REQ);
+        in.bind("inproc://reqrep");
+
+        ZSocket out = new ZSocket(context, SocketType.REP);
+        out.connect("inproc://reqrep");
+
+
+        for (int i = 0; i < 100; i++) {
+            byte[] req = ("request" + i).getBytes();
+            byte[] rep = ("reply" + i).getBytes();
+
+            var reqBuffer = ByteBuffer.allocateDirect(req.length).put(req).flip();
+            var repBuffer = ByteBuffer.allocateDirect(req.length).put(rep).flip();
+
+            ZFrame msgReq = new ZFrame(reqBuffer,true);
+            assertThat(in.send(msgReq, SendFlag.WAIT)).isTrue();
+
+            try(ZFrame reqTmp = out.receive(RecvFlag.WAIT)){
+                assertThat(reqTmp.data()).isEqualTo(req);
+            }
+
+            ZFrame msgRep = new ZFrame(repBuffer,false);
+            assertThat(out.send(msgRep, SendFlag.WAIT)).isTrue();
+            try(ZFrame repTmp = in.receive(RecvFlag.WAIT)){
+                assertThat(repTmp.data()).isEqualTo(rep);
+            }
+        }
+    }
+
 }

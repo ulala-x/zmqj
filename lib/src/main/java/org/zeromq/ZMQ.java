@@ -12,8 +12,6 @@ public class ZMQ {
     public static final int DONTWAIT = 1;
     public static final int SNDMORE = 2;
 
-
-
     public static native int zmq_errno();
 
     public static native String zmq_error_msg(int var0);
@@ -162,47 +160,26 @@ public class ZMQ {
 
     private static native long _EAGAIN();
 
+    public static final long  ENOTSUP           = ZMQ._ENOTSUP();
+    public static final long EPROTONOSUPPORT    = ZMQ._EPROTONOSUPPORT();
+    public static final long ENOBUFS            = ZMQ._ENOBUFS();
+    public static final long ENETDOWN           = ZMQ._ENETDOWN();
+    public static final long EADDRINUSE         = ZMQ._EADDRINUSE();
+    public static final long EADDRNOTAVAIL      = ZMQ._EADDRNOTAVAIL();
+    public static final long ECONNREFUSED       = ZMQ._ECONNREFUSED();
+    public static final long EINPROGRESS        = ZMQ._EINPROGRESS();
+    public static final long EHOSTUNREACH       = ZMQ._EHOSTUNREACH();
+    public static final long EMTHREAD           = ZMQ._EMTHREAD();
+    public static final long EFSM               = ZMQ._EFSM();
+    public static final long ENOCOMPATPROTO     = ZMQ._ENOCOMPATPROTO();
+    public static final long ETERM              = ZMQ._ETERM();
+    public static final long ENOTSOCK           = ZMQ._ENOTSOCK();
+    public static final long EAGAIN             = ZMQ._EAGAIN();
+    public static final long EINTR              = 4;
 
 
-    public enum Error {
-        ENOTSUP(ZMQ._ENOTSUP()),
-        EPROTONOSUPPORT(ZMQ._EPROTONOSUPPORT()),
-        ENOBUFS(ZMQ._ENOBUFS()),
-        ENETDOWN(ZMQ._ENETDOWN()),
-        EADDRINUSE(ZMQ._EADDRINUSE()),
-        EADDRNOTAVAIL(ZMQ._EADDRNOTAVAIL()),
-        ECONNREFUSED(ZMQ._ECONNREFUSED()),
-        EINPROGRESS(ZMQ._EINPROGRESS()),
-        EHOSTUNREACH(ZMQ._EHOSTUNREACH()),
-        EMTHREAD(ZMQ._EMTHREAD()),
-        EFSM(ZMQ._EFSM()),
-        ENOCOMPATPROTO(ZMQ._ENOCOMPATPROTO()),
-        ETERM(ZMQ._ETERM()),
-        ENOTSOCK(ZMQ._ENOTSOCK()),
-        EAGAIN(ZMQ._EAGAIN());
-
-        private final long code;
-
-        private Error(long code) {
-            this.code = code;
-        }
-
-        public long getCode() {
-            return this.code;
-        }
-
-        public static Error findByCode(int code) {
-            for (Error e : Error.class.getEnumConstants()) {
-                if (e.getCode() == code) {
-                    return e;
-                }
-            }
-            throw new IllegalArgumentException("Unknown " + Error.class.getName() + " enum code:" + code);
-        }
-    }
-
-    public static void proxy(ZMQSocket frontend, ZMQSocket backend, ZMQSocket capture) {
+    public static void proxy(ZSocket frontend, ZSocket backend, ZSocket capture) {
         _proxy(frontend, backend, capture);
     }
-    private static native void _proxy(ZMQSocket frontend, ZMQSocket backend, ZMQSocket capture);
+    private static native void _proxy(ZSocket frontend, ZSocket backend, ZSocket capture);
 }

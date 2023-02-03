@@ -23,12 +23,12 @@ public class ZMQTest {
     }
 
     /**
-     * Test method for {@link ZMQSocket#bindToRandomPort(String)}.
+     * Test method for {@link ZSocket#bindToRandomPort(String)}.
      */
     @Test
     public void testBindToRandomPort() {
-        ZMQContext context = new ZMQContext(1);
-        ZMQSocket socket = new ZMQSocket(context, SocketType.DEALER);
+        ZContext context = new ZContext(1);
+        ZSocket socket = new ZSocket(context, SocketType.DEALER);
 
         // Check that bindToRandomport generate valid port number
         for (int i = 0; i < 100; i++) {
@@ -36,7 +36,7 @@ public class ZMQTest {
         }
 
         socket.close();
-        final ZMQSocket dealerSocket = new ZMQSocket(context, SocketType.DEALER);
+        final ZSocket dealerSocket = new ZSocket(context, SocketType.DEALER);
 
         assertThatThrownBy(() -> {
             dealerSocket.bindToRandomPort("noprotocol://127.0.0.1");
@@ -50,11 +50,11 @@ public class ZMQTest {
     }
 
     /**
-     * Test method for {@link ZMQSocket#bindToSystemRandomPort(String)}.
+     * Test method for {@link ZSocket#bindToSystemRandomPort(String)}.
      */
     @Test
     public void testBindToSystemRandomPort() {
-        ZMQSocket socket = new ZMQSocket(SocketType.REP);
+        ZSocket socket = new ZSocket(SocketType.REP);
 
         socket.bindToSystemRandomPort("tcp://127.0.0.1");
         socket.close();

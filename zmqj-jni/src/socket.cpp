@@ -23,7 +23,7 @@
 
 #include "zmqj.h"
 #include "util.h"
-#include "org_zeromq_ZMQSocket.h"
+#include "org_zeromq_ZSocket.h"
 
 static jfieldID  socketHandleFID;
 static jmethodID contextHandleMID;
@@ -73,7 +73,7 @@ inline void put_message (JNIEnv *env, jobject obj, void *msg)
 //
 //}
 
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1nativeInit(JNIEnv *env, jclass c)
+JNIEXPORT void JNICALL Java_org_zeromq_ZSocket__1nativeInit(JNIEnv *env, jclass c)
 {
     jclass bbcls = env->FindClass("java/nio/ByteBuffer");
     limitMID = env->GetMethodID(bbcls, "limit", "()I");
@@ -81,7 +81,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1nativeInit(JNIEnv *env, jclas
     setPositionMID = env->GetMethodID(bbcls, "position", "(I)Ljava/nio/Buffer;");
     env->DeleteLocalRef(bbcls);
 
-    jclass contextcls = env->FindClass("org/zeromq/ZMQContext");
+    jclass contextcls = env->FindClass("org/zeromq/ZContext");
     contextHandleMID = env->GetMethodID(contextcls, "getContextHandle", "()J");
     env->DeleteLocalRef(contextcls);
     socketHandleFID = env->GetFieldID(c, "socketHandle", "J");
@@ -97,7 +97,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1nativeInit(JNIEnv *env, jclas
 
 
 
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1construct(JNIEnv * env, jobject obj, jobject context, jint type)
+JNIEXPORT void JNICALL Java_org_zeromq_ZSocket__1construct(JNIEnv * env, jobject obj, jobject context, jint type)
 {
     void *s = get_socket (env, obj);
     if (s)
@@ -122,7 +122,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1construct(JNIEnv * env, jobje
 /**
  * Called to destroy a Java Socket object.
  */
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQContext_destroy(JNIEnv * env, jobject obj)
+JNIEXPORT void JNICALL Java_org_zeromq_ZContext_destroy(JNIEnv * env, jobject obj)
 {
     void *s = get_socket (env, obj);
     if (! s)
@@ -139,7 +139,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQContext_destroy(JNIEnv * env, jobject 
     }
 }
 
-JNIEXPORT jboolean JNICALL Java_org_zeromq_ZMQSocket__1getBooleanSockopt(JNIEnv * env, jobject obj, jint option)
+JNIEXPORT jboolean JNICALL Java_org_zeromq_ZSocket__1getBooleanSockopt(JNIEnv * env, jobject obj, jint option)
 {
     void *s = get_socket (env, obj);
     jboolean ret = JNI_FALSE;
@@ -160,7 +160,7 @@ JNIEXPORT jboolean JNICALL Java_org_zeromq_ZMQSocket__1getBooleanSockopt(JNIEnv 
     return ret;
 }
 
-JNIEXPORT jint JNICALL Java_org_zeromq_ZMQSocket__1getIntSockopt(JNIEnv * env, jobject obj, jint option)
+JNIEXPORT jint JNICALL Java_org_zeromq_ZSocket__1getIntSockopt(JNIEnv * env, jobject obj, jint option)
 {
     void *s = get_socket (env, obj);
     jint ret = 0;
@@ -181,7 +181,7 @@ JNIEXPORT jint JNICALL Java_org_zeromq_ZMQSocket__1getIntSockopt(JNIEnv * env, j
     return ret;
 }
 
-JNIEXPORT jlong JNICALL Java_org_zeromq_ZMQSocket__1getLongSockopt(JNIEnv * env, jobject obj, jlong option)
+JNIEXPORT jlong JNICALL Java_org_zeromq_ZSocket__1getLongSockopt(JNIEnv * env, jobject obj, jlong option)
 {
     void *s = get_socket (env, obj);
     jlong ret = 0;
@@ -200,7 +200,7 @@ JNIEXPORT jlong JNICALL Java_org_zeromq_ZMQSocket__1getLongSockopt(JNIEnv * env,
     }
     return ret;
 }
-JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZMQSocket__1getBytesSockopt(JNIEnv* env, jobject obj, jint option,jint optValSize)
+JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZSocket__1getBytesSockopt(JNIEnv* env, jobject obj, jint option,jint optValSize)
 {
     void *s = get_socket (env, obj);
     // Warning: hard-coded limit here.
@@ -234,7 +234,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZMQSocket__1getBytesSockopt(JNIEnv*
 /*
  * Called by Java's Socket::setBoolSockopt(int option, long value).
  */
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1setBooleanSockopt  (JNIEnv * env, jobject obj, jint option, jboolean value)
+JNIEXPORT void JNICALL Java_org_zeromq_ZSocket__1setBooleanSockopt  (JNIEnv * env, jobject obj, jint option, jboolean value)
 {
     void *s = get_socket (env, obj);
     int rc = 0;
@@ -254,7 +254,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1setBooleanSockopt  (JNIEnv * 
 /*
  * Called by Java's Socket::setIntSockopt(int option, long value).
  */
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1setIntSockopt  (JNIEnv * env, jobject obj, jint option, jint value)
+JNIEXPORT void JNICALL Java_org_zeromq_ZSocket__1setIntSockopt  (JNIEnv * env, jobject obj, jint option, jint value)
 {
     void *s = get_socket (env, obj);
     int rc = 0;
@@ -273,7 +273,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1setIntSockopt  (JNIEnv * env,
 /*
  * Called by Java's Socket::setLongSockopt(int option, long value).
  */
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1setLongSockopt  (JNIEnv * env, jobject obj, jint option, jlong value)
+JNIEXPORT void JNICALL Java_org_zeromq_ZSocket__1setLongSockopt  (JNIEnv * env, jobject obj, jint option, jlong value)
 {
     void *s = get_socket (env, obj);
     int rc = 0;
@@ -293,7 +293,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1setLongSockopt  (JNIEnv * env
 /**
  * Called by Java's Socket::setBytesSockopt(int option, byte[] value).
  */
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1setBytesSockopt(JNIEnv * env, jobject obj, jint option, jbyteArray value)
+JNIEXPORT void JNICALL Java_org_zeromq_ZSocket__1setBytesSockopt(JNIEnv * env, jobject obj, jint option, jbyteArray value)
 {
     if (value == NULL) {
         raise_exception (env, EINVAL);
@@ -319,7 +319,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1setBytesSockopt(JNIEnv * env,
 /**
  * Called by Java's Socket::bind(String addr).
  */
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1bind(JNIEnv* env, jobject obj, jstring addr)
+JNIEXPORT void JNICALL Java_org_zeromq_ZSocket__1bind(JNIEnv* env, jobject obj, jstring addr)
 {
     void *s = get_socket (env, obj);
 
@@ -347,7 +347,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1bind(JNIEnv* env, jobject obj
 /**
  * Called by Java's Socket::unbind(String addr).
  */
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1unbind(JNIEnv* env, jobject obj, jstring addr)
+JNIEXPORT void JNICALL Java_org_zeromq_ZSocket__1unbind(JNIEnv* env, jobject obj, jstring addr)
 {
     void *s = get_socket (env, obj);
 
@@ -375,7 +375,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1unbind(JNIEnv* env, jobject o
 /**
  * Called by Java's Socket::connect(String addr).
  */
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1connect(JNIEnv *env, jobject obj, jstring addr)
+JNIEXPORT void JNICALL Java_org_zeromq_ZSocket__1connect(JNIEnv *env, jobject obj, jstring addr)
 {
     void *s = get_socket (env, obj);
 
@@ -403,7 +403,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1connect(JNIEnv *env, jobject 
 /**
  * Called by Java's Socket::disconnect(String addr).
  */
- JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1disconnect(JNIEnv * env, jobject obj, jstring addr)
+ JNIEXPORT void JNICALL Java_org_zeromq_ZSocket__1disconnect(JNIEnv * env, jobject obj, jstring addr)
 {
     void *s = get_socket (env, obj);
 
@@ -428,7 +428,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1connect(JNIEnv *env, jobject 
     }
 }
 
-JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1destroy(JNIEnv * env, jobject obj)
+JNIEXPORT void JNICALL Java_org_zeromq_ZSocket__1destroy(JNIEnv * env, jobject obj)
 {
     void *s = get_socket (env, obj);
     if (! s)
@@ -449,7 +449,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1destroy(JNIEnv * env, jobject
 /**
  * Called by Java's Socket::send(byte [] msg, int offset, int flags).
  */
- JNIEXPORT jboolean JNICALL Java_org_zeromq_ZMQSocket__1send___3BIII(JNIEnv *env,
+ JNIEXPORT jboolean JNICALL Java_org_zeromq_ZSocket__1send___3BIII(JNIEnv *env,
                                                             jobject obj, 
                                                             jbyteArray msg, 
                                                             jint offset, 
@@ -512,16 +512,16 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1destroy(JNIEnv * env, jobject
 /**
  * Called by Java's Socket::send(byte [] msg, int offset, int flags).
  */
- JNIEXPORT jboolean JNICALL Java_org_zeromq_ZMQSocket__1send__Lorg_zeromq_ZFrame_2I(
+ JNIEXPORT jboolean JNICALL Java_org_zeromq_ZSocket__1send__Lorg_zeromq_ZFrame_2I(
                                                             JNIEnv * env,
                                                             jobject obj,
-                                                            jobject zmqMsg,
+                                                            jobject zframe,
                                                             jint flags)
 {
     void *s = get_socket (env, obj);
 
 
-    zmq_msg_t* message = (zmq_msg_t*) get_message(env,zmqMsg);
+    zmq_msg_t* message = (zmq_msg_t*) get_message(env,zframe);
 
     if(message == NULL){
         raise_exception(env, EINVAL);
@@ -548,7 +548,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1destroy(JNIEnv * env, jobject
 
         delete message;
         message = NULL;
-        put_message(env,zmqMsg,message);
+        put_message(env,zframe,message);
 
         if (rc != 0) {
             raise_exception (env, err);
@@ -564,7 +564,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1destroy(JNIEnv * env, jobject
 
         delete message;
         message = NULL;
-        put_message(env,zmqMsg,message);
+        put_message(env,zframe,message);
 
         if (rc != 0) {
             raise_exception (env, err);
@@ -578,7 +578,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1destroy(JNIEnv * env, jobject
 
     delete message;
     message = NULL;
-    put_message(env,zmqMsg,message);
+    put_message(env,zframe,message);
 
     if (rc != 0) {
         raise_exception (env, err);
@@ -588,7 +588,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZMQSocket__1destroy(JNIEnv * env, jobject
     return JNI_TRUE;
 }
 
-JNIEXPORT jint JNICALL Java_org_zeromq_ZMQSocket__1recv___3BIII (JNIEnv *env,
+JNIEXPORT jint JNICALL Java_org_zeromq_ZSocket__1recv___3BIII (JNIEnv *env,
                                                                      jobject obj, 
                                                                      jbyteArray buff, 
                                                                      jint offset, 
@@ -619,7 +619,7 @@ JNIEXPORT jint JNICALL Java_org_zeromq_ZMQSocket__1recv___3BIII (JNIEnv *env,
 /**
  * Called by Java's Socket::recv(int flags).
  */
-JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZMQSocket__1recv__I(JNIEnv *env,
+JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZSocket__1recv__I(JNIEnv *env,
                                                                 jobject obj,
                                                                 jint flags)
 {
@@ -648,7 +648,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZMQSocket__1recv__I(JNIEnv *env,
     return data;
 }
 
-JNIEXPORT jobject JNICALL Java_org_zeromq_ZMQSocket__1receive(JNIEnv *env,
+JNIEXPORT jobject JNICALL Java_org_zeromq_ZSocket__1receive(JNIEnv *env,
                                                               jobject obj,
                                                               jint flags)
 {
@@ -705,7 +705,7 @@ zmq_msg_t *do_read(JNIEnv *env, jobject obj, zmq_msg_t *message, int flags)
     return message;
 }
 
-JNIEXPORT jboolean JNICALL Java_org_zeromq_ZMQSocket__1monitor(JNIEnv *env,
+JNIEXPORT jboolean JNICALL Java_org_zeromq_ZSocket__1monitor(JNIEnv *env,
                                                             jobject obj,
                                                             jstring addr,
                                                             jint events)

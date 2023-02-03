@@ -2,7 +2,7 @@ package org.zeromq;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ZMQContext implements AutoCloseable {
+public class ZContext implements AutoCloseable {
     private final AtomicBoolean closed = new AtomicBoolean(false);
     private long contextHandle;
 
@@ -19,7 +19,7 @@ public class ZMQContext implements AutoCloseable {
 
     }
 
-    public ZMQContext(int ioThreads) {
+    public ZContext(int ioThreads) {
         this._construct(ioThreads);
     }
 

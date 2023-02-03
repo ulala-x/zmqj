@@ -1,11 +1,9 @@
 package org.zeromq;
 
 import java.nio.channels.SelectableChannel;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
-public  class ZMQPoller {
+public  class ZPoller {
 
     static {
         if (!EmbeddedLibraryTools.LOADED_EMBEDDED_LIBRARY){
@@ -15,13 +13,13 @@ public  class ZMQPoller {
 
 
     public static class Item {
-        private ZMQSocket socket;
+        private ZSocket socket;
         private SelectableChannel channel;
         private int events;
         private int revents;
 
 
-        public Item(ZMQSocket socket, int events) {
+        public Item(ZSocket socket, int events) {
             this.socket = socket;
             this.events = events;
             this.revents = 0;
@@ -37,7 +35,7 @@ public  class ZMQPoller {
             return channel;
         }
 
-        public ZMQSocket getSocket() {
+        public ZSocket getSocket() {
             return socket;
         }
 
@@ -86,7 +84,7 @@ public  class ZMQPoller {
      * @param socket the Socket we are registering.
      * @return the index identifying this Socket in the poll set.
      */
-    public int register(ZMQSocket socket) {
+    public int register(ZSocket socket) {
         return register(socket, PollEvent.ALL);
     }
 
@@ -109,7 +107,7 @@ public  class ZMQPoller {
      * @param events a mask composed by XORing POLLIN, POLLOUT and POLLERR.
      * @return the index identifying this Socket in the poll set.
      */
-    public int register(ZMQSocket socket, PollEvent events) {
+    public int register(ZSocket socket, PollEvent events) {
         return registerInternal(new Item(socket, events.value()));
     }
 
@@ -187,7 +185,7 @@ public  class ZMQPoller {
      *
      * @param socket the Socket to be unregistered
      */
-    public void unregister(ZMQSocket socket) {
+    public void unregister(ZSocket socket) {
         unregisterInternal(socket);
     }
 
@@ -228,7 +226,7 @@ public  class ZMQPoller {
      * @param index the desired index.
      * @return the Socket associated with that index (or null).
      */
-    public ZMQSocket getSocket(int index) {
+    public ZSocket getSocket(int index) {
         if (index < 0 || index >= this.next)
             return null;
         return this.items[index].socket;
@@ -366,7 +364,7 @@ public  class ZMQPoller {
      *
      * @param size the number of Sockets this poller will contain.
      */
-    public ZMQPoller(int size) {
+    public ZPoller(int size) {
         this(null, size);
     }
 
@@ -375,7 +373,7 @@ public  class ZMQPoller {
      *
      * @param context a 0MQ context previously created.
      */
-    protected ZMQPoller(ZMQContext context) {
+    protected ZPoller(ZContext context) {
         this(context, SIZE_DEFAULT);
     }
 
@@ -385,7 +383,7 @@ public  class ZMQPoller {
      * @param context a 0MQ context previously created.
      * @param size the number of Sockets this poller will contain.
      */
-    protected ZMQPoller(ZMQContext context, int size) {
+    protected ZPoller(ZContext context, int size) {
         this.context = context;
         this.size = size;
         this.next = 0;
@@ -426,7 +424,7 @@ public  class ZMQPoller {
         return (this.items[index].revents & mask) > 0;
     }
 
-    private ZMQContext context = null;
+    private ZContext context = null;
     private long timeout = -2; // mark as uninitialized
     private int size = 0;
     private int next = 0;

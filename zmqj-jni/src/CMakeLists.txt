@@ -6,10 +6,10 @@ set(ZMQJ_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/context.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/util.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/ZMQ.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/ZMQEvent.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/event.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/curve.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/poller.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/zframe.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/frame.cpp"
 )
 set(ZMQJ_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/socket.h")
 set(ZMQJ_INCLUDES 
@@ -39,16 +39,14 @@ set(java-sources-dir
     ../../../lib/src/main/java/org/zeromq
 )
 set(javah-headers
-	org_zeromq_ZMQContext.h
-	org_zeromq_ZMQSocket.h
+	org_zeromq_ZContext.h
+	org_zeromq_ZSocket.h
 	org_zeromq_ZMQ.h
-	org_zeromq_ZMQEvent.h
-	org_zeromq_ZMQCurve.h
-	org_zeromq_ZMQPoller.h
+	org_zeromq_ZEvent.h
+	org_zeromq_ZCurve.h
+	org_zeromq_ZPoller.h
 	org_zeromq_ZFrame.h
 )
-
-
 
 
 
@@ -60,18 +58,12 @@ target_link_libraries(
 )
 
 add_custom_command(
-    TARGET ${ZMQJ}  PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E remove *.h
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)
-
-add_custom_command(
-	TARGET ${ZMQJ}  PRE_BUILD
+	OUTPUT ${javah-headers}
 	COMMAND ${Java_JAVAC_EXECUTABLE} -h . ${java-sources-dir}/*.java
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	DEPENDS ${java-sources-dir}
 )
 
- 
 get_filename_component(JAVA_NATIVE_RESOURCES_PATH 
 	"../../../zmqj/lib/src/main/resources/NATIVE" 
 	ABSOLUTE

@@ -1,6 +1,6 @@
 package org.zeromq;
 
-public class ZMQEvent {
+public class ZEvent {
 
     static {
         if (!EmbeddedLibraryTools.LOADED_EMBEDDED_LIBRARY){
@@ -16,11 +16,11 @@ public class ZMQEvent {
     private final Object value;
     private final String address;
 
-    private  ZMQEvent(int event, int value, String address) {
+    private ZEvent(int event, int value, String address) {
         this(event, Integer.valueOf(value), address != null ? address : "");
     }
 
-    public ZMQEvent(int event, Object value, String address) {
+    public ZEvent(int event, Object value, String address) {
         this.event = event;
         this.value = value;
         this.address = address;
@@ -43,7 +43,7 @@ public class ZMQEvent {
         return address;
     }
 
-    private static native ZMQEvent _recv(long socket, int flags) throws ZMQException;
+    private static native ZEvent _recv(long socket, int flags) throws ZMQException;
 
     /**
      * Receive an event from a monitor socket.
@@ -52,8 +52,8 @@ public class ZMQEvent {
      * @return the received event or null if no message was received.
      * @throws ZMQException
      */
-    public static ZMQEvent recv(ZMQSocket socket, RecvFlag flags) throws ZMQException {
-        return ZMQEvent._recv(socket.getSocketHandle(), flags.value());
+    public static ZEvent recv(ZSocket socket, RecvFlag flags) throws ZMQException {
+        return ZEvent._recv(socket.getSocketHandle(), flags.value());
     }
 
     /**
@@ -63,7 +63,7 @@ public class ZMQEvent {
      * @return the received event.
      * @throws ZMQException
      */
-    public static ZMQEvent recv(ZMQSocket socket) throws ZMQException {
-        return ZMQEvent.recv(socket, RecvFlag.WAIT);
+    public static ZEvent recv(ZSocket socket) throws ZMQException {
+        return ZEvent.recv(socket, RecvFlag.WAIT);
     }
 }

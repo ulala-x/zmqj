@@ -1,14 +1,15 @@
 package org.zeromq;
 
 
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ZMQSocket implements AutoCloseable {
+public class ZSocket implements AutoCloseable {
     private long socketHandle;
-    private final ZMQContext context;
+    private final ZContext context;
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private final int maxOptionSize = 256;
@@ -32,17 +33,17 @@ public class ZMQSocket implements AutoCloseable {
         return this.socketHandle;
     }
 
-    private native void _construct(ZMQContext context, int socketType);
+    private native void _construct(ZContext context, int socketType);
 
     private native void _destroy();
 
-    public ZMQSocket(ZMQContext context, SocketType socketType) {
+    public ZSocket(ZContext context, SocketType socketType) {
         this.context = context;
         this._construct(this.context, socketType.value());
     }
 
-    public ZMQSocket(SocketType socketType) {
-        this.context = new ZMQContext(1);
+    public ZSocket(SocketType socketType) {
+        this.context = new ZContext(1);
         this._construct(this.context, socketType.value());
     }
 
@@ -96,18 +97,67 @@ public class ZMQSocket implements AutoCloseable {
      * @param sendFlag
      * @return
      */
-    public boolean send(byte[] msg, SendFlag sendFlag) {
+    public boolean send(final byte[] msg, final SendFlag sendFlag) {
         return send(msg, 0, msg.length, sendFlag);
     }
 
-    public boolean send(byte[] msg, int offset, int len, SendFlag sendFlag){
+    public boolean send(final byte[] msg, int offset, int len,final SendFlag sendFlag){
         return _send(msg,offset,len,sendFlag.value());
     }
 
-    public boolean send(ZFrame msg, SendFlag sendFlag){
-        try(msg){
-            return _send(msg,sendFlag.value());
+    public boolean send(final ZFrame frame, final SendFlag sendFlag){
+        try(frame){
+            return _send(frame,sendFlag.value());
         }
+    }
+
+    public boolean send(final ZMessage message){
+        return send(message,true);
+    }
+    public boolean send(final ZMessage message,boolean dontWait){
+        try{
+            int size = message.size();
+            for (int index = 0; index < size; index++) {
+                SendFlag flag = SendFlag.WAIT;
+                if(dontWait){
+                    flag = SendFlag.DONT_WAIT;
+                }
+                if(index < (size-1)){
+                    flag = SendFlag.SEND_MORE;
+                }
+
+                boolean result = send(message.frame(index),flag);
+
+                if(result == false){
+
+                    // the zmq framework should not block if the first part is accepted
+                    // so we should only ever get this error on the first part
+                    if((0 == index) && (ZMQ.EAGAIN == ZMQ.zmq_errno())){
+                        return false;
+                    }
+                    if(ZMQ.EINTR == ZMQ.zmq_errno()){
+                        if(0 == index) return false;
+
+                        // If we have an interrupt but it's not on the first part then we
+                        // know we can safely send out the rest of the message as we can
+                        // enforce that it won't wait on a blocking action
+                        dontWait = true;
+                        continue;
+                    }
+//                    assert (ZMQ.EAGAIN != ZMQ.zmq_errno());
+                //    throw  new ZMQException.InternalError();
+                    return false;
+                }
+                message.sent(index);
+            }
+        }finally {
+            try{
+                message.close();
+            }catch (Exception e){
+                System.out.println(e.getStackTrace());
+            }
+        }
+        return true;
     }
 
     public native boolean _send(byte[] msg, int offset, int len, int flags);
@@ -117,7 +167,7 @@ public class ZMQSocket implements AutoCloseable {
 
 
     private native ZFrame _receive(int flags);
-    public ZFrame receive(RecvFlag recvFlag){
+    public ZFrame receive(final RecvFlag recvFlag){
         return _receive(recvFlag.value());
     }
 
@@ -130,7 +180,7 @@ public class ZMQSocket implements AutoCloseable {
      */
     private native byte[] _recv(int flags);
 
-    public  byte[] recv(RecvFlag flags){
+    public  byte[] recv(final RecvFlag flags){
         return _recv(flags.value());
     }
     public byte[] recv(){
@@ -152,6 +202,31 @@ public class ZMQSocket implements AutoCloseable {
         return _recv(buffer,offset,len,flags.value());
     }
 
+
+    public boolean receive(ZMessage message,final boolean dontBlock){
+        RecvFlag flags = dontBlock ? RecvFlag.DONT_WAIT : RecvFlag.WAIT;
+        boolean more = true;
+
+        while (more){
+            ZFrame frame = receive(flags);
+            if(frame==null){
+                if((0 == message.size()) && (ZMQ.EAGAIN == ZMQ.zmq_errno())){
+                    return false;
+                }
+                if(ZMQ.EINTR == ZMQ.zmq_errno()){
+                    if(0 == message.size()){
+                        return  false;
+                    }
+                    continue;
+                }
+                return false;
+            }
+
+            message.push(frame);
+            more = receiveMore();
+        }
+        return true;
+    }
    /*
     option
      */

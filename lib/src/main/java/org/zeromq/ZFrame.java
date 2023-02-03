@@ -11,6 +11,7 @@ public class ZFrame implements  AutoCloseable{
      * @param buffer
      * @return
      */
+    private boolean isSent = false;
     public ZFrame(ByteBuffer buffer, boolean useZeroCopy){
         _construct(buffer,useZeroCopy);
     }
@@ -33,11 +34,10 @@ public class ZFrame implements  AutoCloseable{
             this._destroy();
         }
     }
-
+    public int length() {return _length();}
     public byte[] data(){
         return _data();
     }
-
     private ZFrame(long msgHandle){
         this.msgHandle = msgHandle;
     }
@@ -62,5 +62,9 @@ public class ZFrame implements  AutoCloseable{
     private native byte[] _data();
 
     private native void _destroy();
+    private native int _length();
 
+    public boolean isSent() {return isSent;}
+
+    public void markSent() {isSent = true;}
 }

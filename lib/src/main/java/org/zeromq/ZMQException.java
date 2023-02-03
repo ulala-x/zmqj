@@ -22,6 +22,8 @@ public class ZMQException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
+
+
 //    public static class InternalError extends ZMQException {
 //        public InternalError() {
 //            super(ZMQ.zmq_error_msg(ZMQ.zmq_errno()), ZMQ.zmq_errno());
