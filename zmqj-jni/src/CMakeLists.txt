@@ -48,8 +48,6 @@ set(javah-headers
 	org_zeromq_ZFrame.h
 )
 
-
-
 add_library(${ZMQJ} SHARED ${ZMQJ_SOURCES}  ${ZMQJ_HEADERS} ${javah-headers})
 target_include_directories(${ZMQJ} PUBLIC ${ZMQJ_INCLUDES} ${JNI_INCLUDE_DIRS})
 target_link_libraries(
@@ -78,15 +76,43 @@ if(${CMAKE_SYSTEM} MATCHES Linux)
         COMMAND ${CMAKE_COMMAND} -E copy
                 ${CMAKE_BINARY_DIR}/_deps/zeromq-build/lib/libzmq.so
                 ${JAVA_NATIVE_RESOURCES_PATH}/Linux/x86_64/libzmq.so
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		DEPENDS ${ZMQJ}
+	)
 	add_custom_command(
         TARGET ${ZMQJ}  POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
                 ${CMAKE_BINARY_DIR}/lib/libzmqj.so
-                ${JAVA_NATIVE_RESOURCES_PATH}/Linux/x86_64/libzmqj.so)
+                ${JAVA_NATIVE_RESOURCES_PATH}/Linux/x86_64/libzmqj.so
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS ${ZMQJ}
+    )
 
 elseif(${CMAKE_SYSTEM} MATCHES Windows)
 	message(STATUS "windows platform")
+
+	file(GLOB FIND_ZMQ_LIBS "${CMAKE_BINARY_DIR}/_deps/zeromq-build/bin/Release/*.dll")
+
+	add_custom_command(
+            TARGET ${ZMQJ}  POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${FIND_ZMQ_LIBS}
+                    ${JAVA_NATIVE_RESOURCES_PATH}/Windows/x86_64/libzmq.dll
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            DEPENDS ${ZMQJ}
+        )
+
+    add_custom_command(
+        TARGET ${ZMQJ}  POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_BINARY_DIR}/lib/Release/zmqj.dll
+                ${JAVA_NATIVE_RESOURCES_PATH}/Windows/x86_64/libzmqj.dll
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS ${ZMQJ}
+    )
+
+
+
 elseif(${CMAKE_SYSTEM} MATCHES Darwin)
 	message(STATUS "mac platform")
 else()
@@ -94,10 +120,9 @@ else()
 endif()
 
 add_custom_command(
-        TARGET ${ZMQJ}  POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E remove
-                ${java-sources-dir}/*.class
-                )
+    TARGET ${ZMQJ}  POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove ${java-sources-dir}/*.class
+)
 
 # if(WIN32)      
 	

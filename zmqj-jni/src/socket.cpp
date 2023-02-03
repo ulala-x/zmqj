@@ -205,7 +205,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_zeromq_ZSocket__1getBytesSockopt(JNIEnv* e
     void *s = get_socket (env, obj);
     // Warning: hard-coded limit here.
     size_t optvallen = optValSize;
-    char optval[optvallen];
+    char optval[1024];
 
     memset(&optval,-1,optvallen);
     
