@@ -48,11 +48,14 @@ set(javah-headers
 	org_zeromq_ZFrame.h
 )
 
+
 add_library(${ZMQJ} SHARED ${ZMQJ_SOURCES}  ${ZMQJ_HEADERS} ${javah-headers})
 target_include_directories(${ZMQJ} PUBLIC ${ZMQJ_INCLUDES} ${JNI_INCLUDE_DIRS})
+
+
 target_link_libraries(
     ${ZMQJ}
-    libzmq
+	libzmq
 )
 
 add_custom_command(
@@ -90,14 +93,29 @@ if(${CMAKE_SYSTEM} MATCHES Linux)
 
 elseif(${CMAKE_SYSTEM} MATCHES Windows)
 	message(STATUS "windows platform")
+	message(STATUS ${java-sources-dir})
 
+	# file(GLOB FIND_ZMQ_LIBS " ${CMAKE_BINARY_DIR}/lib/Release/*.dll")
 	file(GLOB FIND_ZMQ_LIBS "${CMAKE_BINARY_DIR}/_deps/zeromq-build/bin/Release/*.dll")
+
+	# file(COPY ${FIND_ZMQ_LIBS} DESTINATION ${JAVA_NATIVE_RESOURCES_PATH}/Windows/x86_64//libzmq.dll)
+
+
+	# add_custom_command(
+	# 	TARGET ${ZMQJ}  POST_BUILD
+	# 	COMMAND ${CMAKE_COMMAND} -E copy
+	# 			${FIND_ZMQ_LIBS}
+	# 			${JAVA_NATIVE_RESOURCES_PATH}/Windows/x86_64
+	# 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	# 	DEPENDS ${ZMQJ}
+	# )
+
 
 	add_custom_command(
             TARGET ${ZMQJ}  POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
                     ${FIND_ZMQ_LIBS}
-                    ${JAVA_NATIVE_RESOURCES_PATH}/Windows/x86_64/libzmq.dll
+                    ${JAVA_NATIVE_RESOURCES_PATH}/Windows/x86_64/
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             DEPENDS ${ZMQJ}
         )
@@ -122,6 +140,7 @@ endif()
 add_custom_command(
     TARGET ${ZMQJ}  POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E remove ${java-sources-dir}/*.class
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 # if(WIN32)      

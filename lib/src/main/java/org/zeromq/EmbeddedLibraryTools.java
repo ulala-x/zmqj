@@ -152,7 +152,8 @@ public class EmbeddedLibraryTools {
         String[] libs;
         final String libsFromProps = System.getProperty("zmqj.libs");
         if (libsFromProps == null)
-            libs = new String[]{"libzmq", "zmq","libzmqj", "jzmq","libsodium", "sodium" };
+            libs = new String[]{"libzmq", "libzmq-v143-mt-4_3_4","libzmqj"};
+//        libs = new String[]{"libzmq", "zmq","libzmqj", "jzmq","libsodium", "sodium" };
         else
             libs = libsFromProps.split(",");
         StringBuilder url = new StringBuilder();
