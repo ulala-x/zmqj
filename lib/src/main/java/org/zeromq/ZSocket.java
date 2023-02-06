@@ -817,8 +817,8 @@ public class ZSocket implements AutoCloseable {
     }
 
 
-    public int fd() {
-        return getIntOption(SocketOption.ZMQ_FD);
+    public long fd() {
+        return getLongOption(SocketOption.ZMQ_FD);
     }
 
 

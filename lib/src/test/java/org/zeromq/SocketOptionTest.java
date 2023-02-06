@@ -98,8 +98,9 @@ public class SocketOptionTest {
     }
 
     @Test
-    void fd(){
-        int fd = socket.fd();
+    void fd() throws InterruptedException {
+
+        long fd = socket.fd();
         System.out.println(fd);
 
     }
