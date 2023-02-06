@@ -56,7 +56,6 @@
 # Libraries
 
 # Shared objects (inc. Windows DLLs)
-*.so.*
 
 # Executables
 *.i*86
