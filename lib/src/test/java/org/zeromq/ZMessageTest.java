@@ -51,4 +51,35 @@ public class ZMessageTest {
         input.close();
         ctx.close();
     }
+
+    @Test
+    public void testRouterToRouter() throws InterruptedException {
+
+        ZSocket serverSocket = new ZSocket(SocketType.ROUTER);
+        serverSocket.routingId("Server".getBytes());
+        serverSocket.bind("tcp://127.0.0.1:7777");
+
+        ZSocket clientSocket = new ZSocket(SocketType.ROUTER);
+        clientSocket.routingId("Client".getBytes());
+        clientSocket.connect("tcp://127.0.0.1:7777");
+
+        Thread.sleep(100);
+
+
+        ZMessage sendMessage = new ZMessage();
+        sendMessage.add(new ZFrame("Server".getBytes()));
+        sendMessage.add(new ZFrame("hello".getBytes()));
+
+        clientSocket.send(sendMessage);
+
+
+        String routingId =new String(serverSocket.recv(RecvFlag.WAIT));
+        String message = new String(serverSocket.recv(RecvFlag.WAIT));
+
+        assertThat(routingId).isEqualTo("Client");
+        assertThat(message).isEqualTo("hello");
+    }
+
+
+
 }

@@ -1,6 +1,7 @@
 package org.zeromq;
 
 import java.nio.ByteBuffer;
+import java.security.InvalidParameterException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ZFrame implements  AutoCloseable{
@@ -13,10 +14,16 @@ public class ZFrame implements  AutoCloseable{
      */
     private boolean isSent = false;
     public ZFrame(ByteBuffer buffer, boolean useZeroCopy){
+        if(!buffer.isDirect()){
+            throw new InvalidParameterException("buffer is not direct");
+        }
         _construct(buffer,useZeroCopy);
     }
 
     public ZFrame(ByteBuffer buffer){
+        if(!buffer.isDirect()){
+            throw new InvalidParameterException("buffer is not direct");
+        }
         _construct(buffer,false);
     }
 
@@ -31,7 +38,7 @@ public class ZFrame implements  AutoCloseable{
     @Override
     public void close() {
         if (this.closed.compareAndSet(false, true)) {
-            this._destroy();
+            this._destroy(isSent);
         }
     }
     public int length() {return _length();}
@@ -61,7 +68,7 @@ public class ZFrame implements  AutoCloseable{
 
     private native byte[] _data();
 
-    private native void _destroy();
+    private native void _destroy(boolean isSent);
     private native int _length();
 
     public boolean isSent() {return isSent;}

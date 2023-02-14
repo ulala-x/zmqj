@@ -148,4 +148,25 @@ Java_org_zeromq_ZMQ__1proxy (JNIEnv *env, jclass cls, jobject frontend_, jobject
 
 }
 
+/*
+ * Class:     org_zeromq_ZMQ
+ * Method:    _zmq_errno
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_zeromq_ZMQ__1zmq_1errno(JNIEnv * env, jclass cls)
+{
+    int err = zmq_errno();
+    return err;
+}
+
+/*
+ * Class:     org_zeromq_ZMQ
+ * Method:    _zmq_error_msg
+ * Signature: (I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_zeromq_ZMQ__1zmq_1error_1msg(JNIEnv * env, jclass cls, jint errorCode)
+{
+    return env->NewStringUTF(zmq_strerror(errorCode));
+}
+
 

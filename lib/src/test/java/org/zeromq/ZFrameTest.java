@@ -3,8 +3,9 @@ package org.zeromq;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.security.InvalidParameterException;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 public class ZFrameTest {
 
@@ -17,15 +18,27 @@ public class ZFrameTest {
 
     @Test
     void byteBufferTest(){
-        ByteBuffer buffer = ByteBuffer.allocateDirect(100);
-        buffer.put("hello".getBytes());
+        byte[] data = "hello".getBytes();
 
-        ZFrame zeroCopyMsg = new ZFrame(buffer,true);
+        ByteBuffer buffer = ByteBuffer.allocateDirect(100);
+        buffer.put(data);
+
+        ZFrame zeroCopyMsg = new ZFrame(buffer.flip(),true);
+
+        assertThat(zeroCopyMsg.data()).isEqualTo(data);
+
         zeroCopyMsg.close();
 
         ZFrame frame = new ZFrame(buffer,false);
         frame.close();
+
+        assertThatThrownBy(()->{
+            new ZFrame(ByteBuffer.allocate(100));
+        }).isInstanceOf(InvalidParameterException.class);
+
     }
+
+
 
     @Test
     void dataTest(){

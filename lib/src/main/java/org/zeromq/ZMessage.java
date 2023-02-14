@@ -72,4 +72,6 @@ public class ZMessage extends LinkedList<ZFrame> implements AutoCloseable {
             super.get(index).markSent();
         }
     }
+
+
 }

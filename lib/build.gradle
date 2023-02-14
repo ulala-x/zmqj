@@ -9,14 +9,17 @@
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+    id 'maven-publish'
 }
 
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
+    mavenLocal()
 }
 
 java {
+    withJavadocJar()
     withSourcesJar()
 }
 
@@ -38,11 +41,63 @@ dependencies {
     // https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime
     implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.1'
 
-
-
 }
 
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'org.zeromq'
+            artifactId = 'zmqj'
+            version = '4.3.4.1'
+            from components.java
+
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'zmqj library '
+                description = 'java binder for zeromq'
+                url = 'https://github.com/ulala-x/zmqj'
+
+                licenses {
+                    license {
+                        name = 'GNU General Public License v3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'ualal-x'
+                        name = 'ualal-x'
+                        email = 'ulala.the.great@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git:github.com/ulala-x/zmqj'
+                    url = 'https://github.com/ulala-x/zmqj.git'
+                }
+            }
+        }
+
+    }
+}
+
+
+
+
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
 }

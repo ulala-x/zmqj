@@ -37,7 +37,6 @@ public class ZEvent {
     /**
      * Get the address.
      * For libzmq versions 3.2.x the address will be an empty string.
-     * @return
      */
     public String getAddress() {
         return address;
@@ -47,10 +46,6 @@ public class ZEvent {
 
     /**
      * Receive an event from a monitor socket.
-     * @param socket the socket
-     * @param flags the flags to apply to the receive operation.
-     * @return the received event or null if no message was received.
-     * @throws ZMQException
      */
     public static ZEvent recv(ZSocket socket, RecvFlag flags) throws ZMQException {
         return ZEvent._recv(socket.getSocketHandle(), flags.value());
@@ -59,9 +54,6 @@ public class ZEvent {
     /**
      * Receive an event from a monitor socket.
      * Does a blocking recv.
-     * @param socket the socket
-     * @return the received event.
-     * @throws ZMQException
      */
     public static ZEvent recv(ZSocket socket) throws ZMQException {
         return ZEvent.recv(socket, RecvFlag.WAIT);

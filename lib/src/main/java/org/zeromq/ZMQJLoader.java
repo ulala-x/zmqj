@@ -45,11 +45,6 @@ public class ZMQJLoader
 
     /**
      * Extract the specified library file to the target folder
-     *
-     * @param nativeLibraryFilePath
-     * @param libraryFileName
-     * @param targetFolder
-     * @return
      */
     public static File extractLibraryFile(String nativeLibraryFilePath, String libraryFileName, String targetFolder)
     {

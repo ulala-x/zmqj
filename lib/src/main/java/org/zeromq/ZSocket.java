@@ -107,7 +107,11 @@ public class ZSocket implements AutoCloseable {
 
     public boolean send(final ZFrame frame, final SendFlag sendFlag){
         try(frame){
-            return _send(frame,sendFlag.value());
+            boolean result =  _send(frame,sendFlag.value());
+            if(result){
+                frame.isSent();
+            }
+            return result;
         }
     }
 
@@ -222,10 +226,16 @@ public class ZSocket implements AutoCloseable {
                 return false;
             }
 
-            message.push(frame);
+            message.add(frame);
             more = receiveMore();
         }
         return true;
+    }
+
+    public ZMessage receive(final boolean dontBlock){
+        ZMessage message = new ZMessage();
+        receive(message,dontBlock);
+        return message;
     }
    /*
     option

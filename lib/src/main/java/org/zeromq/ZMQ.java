@@ -12,9 +12,14 @@ public class ZMQ {
     public static final int DONTWAIT = 1;
     public static final int SNDMORE = 2;
 
-    public static native int zmq_errno();
+    public static  int zmq_errno(){
+        return _zmq_errno();
+    }
 
-    public static native String zmq_error_msg(int var0);
+    public static  String zmq_error_msg(int errorCode){
+        return _zmq_error_msg(errorCode);
+    }
+
 
     public static int getMajorVersion() {
         return _version_major();
@@ -159,6 +164,11 @@ public class ZMQ {
     private static native long _ENOTSOCK();
 
     private static native long _EAGAIN();
+
+    public static native int _zmq_errno();
+
+    public static native String _zmq_error_msg(int errorCode);
+
 
     public static final long  ENOTSUP           = ZMQ._ENOTSUP();
     public static final long EPROTONOSUPPORT    = ZMQ._EPROTONOSUPPORT();

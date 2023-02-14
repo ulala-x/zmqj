@@ -60,4 +60,11 @@ public class ZMQTest {
         socket.close();
     }
 
+    @Test
+    public  void testError(){
+
+        System.out.println(ZMQ.zmq_error_msg(ZMQ.zmq_errno()));
+
+    }
+
 }

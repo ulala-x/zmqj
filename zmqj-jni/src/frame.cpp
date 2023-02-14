@@ -136,19 +136,23 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZFrame__1construct__Ljava_nio_ByteBuffer_
 /**
  * Called to destroy a Java Socket object.
  */
-JNIEXPORT void JNICALL Java_org_zeromq_ZFrame__1destroy(JNIEnv * env, jobject obj)
+JNIEXPORT void JNICALL Java_org_zeromq_ZFrame__1destroy(JNIEnv *env, jobject obj, jboolean isSent)
 {
     zmq_msg_t* message = (zmq_msg_t*)get_message (env, obj);
     if (message==NULL)
        return;
 
-    int rc = zmq_msg_close (message);
-    int err = zmq_errno();
+    int rc = 0;
+    if(isSent == JNI_FALSE){
+        rc = zmq_msg_close (message);
+    }
+
     delete message;
     message = NULL;
     put_message (env, obj, message);
 
     if (rc != 0) {
+        int err = zmq_errno();
         raise_exception (env, err);
         return;
     }
